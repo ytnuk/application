@@ -1,0 +1,31 @@
+{layout auto}
+{block layout}
+<header>
+    {control menu-group-admin}
+    <hr>
+    {control menu-group-modules}
+</header>
+<hr>
+<main>
+    {control menu:breadcrumb}
+    <aside n:inner-foreach="$flashes as $flash" n:if="$flashes">
+        <p><strong>{$flash->type|capitalize}!</strong> {_$flash->message}</p>
+    </aside>
+    {include module}
+</main>
+<hr>
+<footer>
+    <nav>
+        <ol>
+            <li>
+                <a n:href=":Home:Presenter:view" target="_blank">Frontend</a>
+            </li>
+            <li>
+                <a href="#">Zpět nahoru</a>
+            </li>
+        </ol>
+    </nav>
+    <blockquote>
+        <p>{_local.site.title} - {_local.site.copyright}</p>
+    </blockquote>
+</footer>

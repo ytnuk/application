@@ -1,7 +1,12 @@
 {
     "name": "webedit/application",
     "require": {
-        "nette/bootstrap": "dev-master"
+        "nette/bootstrap": "dev-master",
+        "nette/DI": "dev-master",
+        "nette/application": "dev-master",
+        "nette/utils": "dev-master",
+        "webedit/translation": "dev-master",
+        "webedit/menu": "dev-master"
     },
     "autoload": {
         "psr-4": {
