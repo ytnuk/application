@@ -1,0 +1,11 @@
+{
+    "name": "webedit/bootstrap",
+    "require": {
+        "nette/bootstrap": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "WebEdit\\": "src/"
+        }
+    }
+}
