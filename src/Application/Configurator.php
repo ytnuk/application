@@ -1,6 +1,6 @@
 <?php
 
-namespace WebEdit\Bootstrap;
+namespace WebEdit\Application;
 
 use Nette;
 

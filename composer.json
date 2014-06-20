@@ -1,5 +1,5 @@
 {
-    "name": "webedit/bootstrap",
+    "name": "webedit/application",
     "require": {
         "nette/bootstrap": "dev-master"
     },

@@ -1,4 +1,4 @@
-bootstrap
+application
 =========
 
-Bootstrap module
+Application module
