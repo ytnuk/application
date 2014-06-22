@@ -11,7 +11,7 @@ abstract class Control extends Application\UI\Control {
     protected $view = 'view';
 
     public function __construct() {
-        
+        parent::__construct(NULL, NULL);
     }
 
     protected function render() {
