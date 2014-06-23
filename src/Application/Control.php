@@ -35,17 +35,17 @@ abstract class Control extends Application\UI\Control {
         return array_shift($templates);
     }
 
-    public function __call($func, $args = []) {
-        if (Strings::startsWith($func, 'render')) {
+    public function __call($name, $arguments = []) {
+        if (Strings::startsWith($name, 'render')) {
             $default = $this->view;
-            if ($func !== 'render') {
-                $this->view = Strings::lower(Strings::substring($func, 6));
+            if ($name !== 'render') {
+                $this->view = lcfirst(Strings::substring($name, 6));
             }
-            $result = call_user_func_array([$this, 'render'], $args);
+            $result = call_user_func_array([$this, 'render'], $arguments);
             $this->view = $default;
             return $result;
         }
-        return parent::__call($func, $args);
+        return parent::__call($name, $arguments);
     }
 
 }
