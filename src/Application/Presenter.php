@@ -37,10 +37,10 @@ abstract class Presenter extends Application\UI\Presenter {
         return $this->layouts;
     }
 
-    protected function getTemplateFiles($name) {
+    protected function getTemplateFiles($name) { //TODO: same as in Application\Control -> service
         $templates = [];
         $reflection = new WebEdit\Reflection($this);
-        $local = 'C:\Users\vitkutny\Desktop\sandbox/private/src';
+        $local = '/home/vitkutny/Public/sandbox/private/src';
         do {
             $localTemplate = $local . '/' . $reflection->getModuleName($reflection->getShortName() . '/' . $name . '.latte', '/', FALSE);
             $path = pathinfo($reflection->getFileName());

@@ -18,10 +18,10 @@ abstract class Control extends Application\UI\Control {
         $this->template->render($this->getTemplateFiles($this->view));
     }
 
-    protected function getTemplateFiles($name) {
+    protected function getTemplateFiles($name) { //TODO: same as in Application\Presenter -> service
         $templates = [];
         $reflection = new WebEdit\Reflection($this);
-        $local = 'C:\Users\vitkutny\Desktop\sandbox/private/src';
+        $local = '/home/vitkutny/Public/sandbox/private/src';
         do {
             $localTemplate = $local . '/' . $reflection->getModuleName($reflection->getShortName() . '/' . $name . '.latte', '/', FALSE);
             $path = pathinfo($reflection->getFileName());
