@@ -2,12 +2,19 @@
 
 namespace WebEdit\Application;
 
-use Nette\DI;
+use WebEdit\DI;
 
-abstract class Extension extends DI\CompilerExtension {
+final class Extension extends DI\Extension {
 
-    public function getTranslationResources() {
-        return [dirname(dirname(dirname($this->reflection->getFileName()))) . '/locale'];
+    private $defaults = [
+        'mapping' => ['*' => 'WebEdit\*\*']
+    ];
+
+    public function loadConfiguration() {
+        $builder = $this->getContainerBuilder();
+        $config = $this->getConfig($this->defaults);
+        $builder->getDefinition('nette.presenterFactory')
+                ->addSetup('setMapping', [$config['mapping']]);
     }
 
 }
