@@ -1,8 +1,6 @@
 {
     "name": "webedit/application",
     "require": {
-        "tracy/tracy": "dev-master",
-        "nette/bootstrap": "dev-master",
         "nette/application": "dev-master",
         "latte/latte": "dev-master",
         "nette/utils": "dev-master",

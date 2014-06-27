@@ -2,19 +2,21 @@
 
 namespace WebEdit\Application;
 
-use WebEdit\DI;
+use WebEdit\Bootstrap;
 
-final class Extension extends DI\Extension {
+final class Extension extends Bootstrap\Extension {
 
     private $defaults = [
-        'mapping' => ['*' => 'WebEdit\*\*']
+        'presenter' => [
+            'mapping' => ['*' => 'WebEdit\*\*']
+        ]
     ];
 
-    public function loadConfiguration() {
+    public function beforeCompile() {
         $builder = $this->getContainerBuilder();
         $config = $this->getConfig($this->defaults);
         $builder->getDefinition('nette.presenterFactory')
-                ->addSetup('setMapping', [$config['mapping']]);
+                ->addSetup('setMapping', [$config['presenter']['mapping']]);
     }
 
 }
