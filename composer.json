@@ -1,6 +1,7 @@
 {
     "name": "webedit/application",
     "require": {
+        "webedit/bootstrap": "dev-master",
         "nette/application": "dev-master",
         "latte/latte": "dev-master",
         "nette/utils": "dev-master",
