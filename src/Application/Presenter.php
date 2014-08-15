@@ -40,7 +40,7 @@ abstract class Presenter extends Application\UI\Presenter {
     protected function getTemplateFiles($name) { //TODO: same as in Application\Control -> service
         $templates = [];
         $reflection = new WebEdit\Reflection($this);
-        $local = '/home/vitkutny/Public/sandbox/private/src';
+        $local = '/home/vitkutny/Stránky/webedit/private/src';
         do {
             $localTemplate = $local . '/' . $reflection->getModuleName($reflection->getShortName() . '/' . $name . '.latte', '/', FALSE);
             $path = pathinfo($reflection->getFileName());

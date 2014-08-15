@@ -21,7 +21,7 @@ abstract class Control extends Application\UI\Control {
     protected function getTemplateFiles($name) { //TODO: same as in Application\Presenter -> service
         $templates = [];
         $reflection = new WebEdit\Reflection($this);
-        $local = '/home/vitkutny/Public/sandbox/private/src';
+        $local = '/home/vitkutny/Stránky/webedit/private/src';
         do {
             $localTemplate = $local . '/' . $reflection->getModuleName($reflection->getShortName() . '/' . $name . '.latte', '/', FALSE);
             $path = pathinfo($reflection->getFileName());
