@@ -54,7 +54,7 @@ final class Extension extends Bootstrap\Extension {
         $builder->getDefinition('nette.presenterFactory')
                 ->addSetup('setMapping', [$this->resources['presenter']['mapping']]);
         foreach ($this->resources['presenter']['components'] as $name => $component) {
-            $builder->addDefinition('application.presenter.component.' . $name)
+            $builder->addDefinition($this->prefix('presenter.component.' . $name))
                     ->setImplement($component);
         }
     }
