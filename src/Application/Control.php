@@ -2,44 +2,47 @@
 
 namespace WebEdit\Application;
 
-use Nette\Application;
+use Nette\Application\UI;
 use Nette\Utils\Strings;
-use WebEdit;
+use WebEdit\Templating;
+use WebEdit\Application;
 
-abstract class Control extends Application\UI\Control {
+abstract class Control extends UI\Control {
 
-    protected $view = 'view';
+    private $view = 'View';
+    private $functions = [];
 
-    public function __construct() {
-        parent::__construct(NULL, NULL);
+    private function render() {
+        $this->callFunction('startup', NULL, TRUE);
+        $this->callFunction('startup' . $this->view, func_get_args(), TRUE);
+        $this->callFunction('beforeRender');
+        $this->callFunction('render' . $this->view, func_get_args());
+        return $this->template->render($this['template'][lcfirst($this->view)]);
     }
 
-    protected function render() {
-        $this->template->render($this->getTemplateFiles($this->view));
+    private function callFunction($name, $arguments = NULL, $once = FALSE) {
+        if ($once && isset($this->functions[$name])) {
+            return;
+        }
+        if (method_exists($this, $name)) {
+            call_user_func_array([$this, $name], $arguments ? : []);
+        }
+        if ($once) {
+            $this->functions[$name] = TRUE;
+        }
     }
 
-    protected function getTemplateFiles($name) { //TODO: same as in Application\Presenter -> service
-        $templates = [];
-        $reflection = new WebEdit\Reflection($this);
-        $local = '/home/vitkutny/Stránky/webedit/private/src';
-        do {
-            $localTemplate = $local . '/' . $reflection->getModuleName($reflection->getShortName() . '/' . $name . '.latte', '/', FALSE);
-            $path = pathinfo($reflection->getFileName());
-            $template = $path['dirname'] . '/' . $path['filename'] . '/' . $name . '.latte';
-            if (file_exists($localTemplate)) {
-                $templates[] = $localTemplate;
-            } elseif (file_exists($template)) {
-                $templates[] = $template;
-            }
-        } while ($reflection = $reflection->getParentClass());
-        return array_shift($templates);
+    protected function createComponentTemplate() {
+        return new Application\Control\Multiplier(function($view) {
+            return new Templating\Template($view);
+        });
     }
 
     public function __call($name, $arguments = []) {
         if (Strings::startsWith($name, 'render')) {
             $default = $this->view;
-            if ($name !== 'render') {
-                $this->view = lcfirst(Strings::substring($name, 6));
+            if ($name != 'render') {
+                $this->view = Strings::substring($name, 6);
             }
             $result = call_user_func_array([$this, 'render'], $arguments);
             $this->view = $default;

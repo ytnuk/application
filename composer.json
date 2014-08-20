@@ -4,6 +4,7 @@
         "webedit/bootstrap": "dev-master",
         "nette/application": "dev-master",
         "webedit/translation": "dev-master",
+        "webedit/templating": "dev-master",
         "nette/utils": "dev-master",
         "webedit/menu": "dev-master"
     },

@@ -2,18 +2,18 @@
 
 namespace WebEdit\Application;
 
-use Nette\Application;
+use Nette\Application\UI;
 use WebEdit\Menu;
-use WebEdit;
+use WebEdit\Templating;
+use WebEdit\Application;
 
-abstract class Presenter extends Application\UI\Presenter {
+abstract class Presenter extends UI\Presenter {
 
     /**
      * @persistent
      */
     public $locale;
     private $menuControl;
-    private $layouts;
 
     public function injectMenuControl(Menu\Control\Factory $control) {
         $this->menuControl = $control;
@@ -24,34 +24,17 @@ abstract class Presenter extends Application\UI\Presenter {
     }
 
     public function formatTemplateFiles() {
-        return $this->getTemplateFiles($this->view);
+        return $this['template'][$this->view];
     }
 
     public function formatLayoutTemplateFiles() {
-        if (!$this->layouts) {
-            $this->layouts = $this->getTemplateFiles('@layout');
-        } else {
-            array_shift($this->layouts);
-        }
-
-        return $this->layouts;
+        return $this['template']['layout'];
     }
 
-    protected function getTemplateFiles($name) { //TODO: same as in Application\Control -> service
-        $templates = [];
-        $reflection = new WebEdit\Reflection($this);
-        $local = '/home/vitkutny/Stránky/webedit/private/src';
-        do {
-            $localTemplate = $local . '/' . $reflection->getModuleName($reflection->getShortName() . '/' . $name . '.latte', '/', FALSE);
-            $path = pathinfo($reflection->getFileName());
-            $template = $path['dirname'] . '/' . $path['filename'] . '/' . $name . '.latte';
-            if (file_exists($localTemplate)) {
-                $templates[] = $localTemplate;
-            } elseif (file_exists($template)) {
-                $templates[] = $template;
-            }
-        } while ($reflection = $reflection->getParentClass());
-        return $templates;
+    protected function createComponentTemplate() {
+        return new Application\Control\Multiplier(function($view) {
+            return new Templating\Template($view);
+        });
     }
 
 }
