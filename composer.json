@@ -1,5 +1,9 @@
 {
     "name": "webedit/application",
+    "type": "webedit-module",
+    "extra": {
+        "extension": "WebEdit\\Application\\Extension"
+    },
     "require": {
         "webedit/bootstrap": "dev-master",
         "webedit/routing": "dev-master",
