@@ -6,30 +6,11 @@ use WebEdit\Bootstrap;
 use WebEdit\Application;
 use Nette\PhpGenerator;
 
-final class Extension extends Bootstrap\Extension {
-
-    private $resources = [
-        'presenter' => [
-            'mapping' => ['*' => 'WebEdit\*\*'],
-            'components' => []
-        ],
-        'services' => []
-    ];
+final class Extension extends Bootstrap\Extension implements Application\Provider {
 
     public function beforeCompile() {
-        $this->loadResources();
         $this->setupServices();
         $this->setupPresenter();
-    }
-
-    private function loadResources() {
-        $this->resources = $this->getConfig($this->resources);
-        foreach ($this->compiler->getExtensions() as $extension) {
-            if (!$extension instanceof Application\Provider) {
-                continue;
-            }
-            $this->resources = array_merge_recursive($this->resources, $extension->getApplicationResources());
-        }
     }
 
     private function setupServices() {
@@ -57,6 +38,16 @@ final class Extension extends Bootstrap\Extension {
             $builder->addDefinition($this->prefix('presenter.component.' . $name))
                     ->setImplement($component);
         }
+    }
+
+    public function getApplicationResources() {
+        return [
+            'presenter' => [
+                'mapping' => ['*' => 'WebEdit\*\*'],
+                'components' => []
+            ],
+            'services' => []
+        ];
     }
 
 }
