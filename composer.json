@@ -2,7 +2,9 @@
     "name": "webedit/application",
     "type": "webedit-module",
     "extra": {
-        "extension": "WebEdit\\Application\\Extension"
+        "extensions": {
+            "application": "WebEdit\\Application\\Extension"
+        }
     },
     "require": {
         "webedit/bootstrap": "dev-master",
