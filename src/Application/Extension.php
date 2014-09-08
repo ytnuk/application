@@ -2,11 +2,11 @@
 
 namespace WebEdit\Application;
 
-use WebEdit\Bootstrap;
+use WebEdit\Module;
 use WebEdit\Application;
 use Nette\PhpGenerator;
 
-final class Extension extends Bootstrap\Extension implements Application\Provider {
+final class Extension extends Module\Extension implements Application\Provider {
 
     public function beforeCompile() {
         $this->setupServices();

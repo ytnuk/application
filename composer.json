@@ -7,7 +7,9 @@
         }
     },
     "require": {
-        "webedit/bootstrap": "dev-master",
+        "webedit/module": "dev-master",
+        "nette/safe-stream": "dev-master",
+        "tracy/tracy": "dev-master",
         "webedit/routing": "dev-master",
         "webedit/templating": "dev-master",
         "nette/application": "dev-master",
