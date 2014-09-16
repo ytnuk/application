@@ -2,52 +2,75 @@
 
 namespace WebEdit\Application;
 
-use WebEdit\Module;
-use WebEdit\Application;
+use Nette\Bridges;
 use Nette\PhpGenerator;
+use WebEdit\Application;
+use WebEdit\Module;
 
-final class Extension extends Module\Extension implements Application\Provider {
+final class Extension extends Module\Extension
+{
 
-    public function beforeCompile() {
-        $this->setupServices();
-        $this->setupPresenter();
-    }
+    protected $resources = [
+        'presenter' => [
+            'mapping' => ['*' => 'WebEdit\*\*'],
+            'components' => []
+        ],
+        'services' => []
+    ];
 
-    private function setupServices() {
-        $builder = $this->getContainerBuilder();
-        foreach ($this->resources['services'] as $class => $parameters) {
-            if (!is_string($class)) {
-                $class = $parameters;
-                $parameters = [];
-            }
-            $definition = $builder->addDefinition(lcfirst(stripslashes($class)));
-            interface_exists($class) ? $definition->setImplement($class) : $definition->setClass($class);
-            $definition->setParameters($parameters);
-            $definition->setArguments(
-                    array_map(function($parameter) {
-                        return new PhpGenerator\PhpLiteral('$' . $parameter);
-                    }, $parameters));
-        }
-    }
-
-    private function setupPresenter() {
-        $builder = $this->getContainerBuilder();
-        $builder->getDefinition('nette.presenterFactory')
-                ->addSetup('setMapping', [$this->resources['presenter']['mapping']]);
-        foreach ($this->resources['presenter']['components'] as $name => $component) {
-            $builder->addDefinition($this->prefix('presenter.component.' . $name))
-                    ->setImplement($component);
-        }
-    }
-
-    public function getApplicationResources() {
+    public function getApplicationResources()
+    {
         return [
-            'presenter' => [
-                'mapping' => ['*' => 'WebEdit\*\*'],
-                'components' => []
-            ],
-            'services' => []
+            'services' => [
+                'application' => [
+                    'class' => Application::class
+                ],
+                [
+                    'class' => Application\Presenter\Factory::class,
+                    'arguments' => [new PhpGenerator\PhpLiteral('$this')],
+                    'setup' => [
+                        'setMapping' => [$this->resources['presenter']['mapping']],
+                        'setComponents' => [$this->resources['presenter']['components']]
+                    ]
+                ]
+            ]
         ];
+    }
+
+    protected function startup()
+    {
+        $builder = $this->getContainerBuilder();
+        $this->compiler->addExtension('cache', new Bridges\CacheDI\CacheExtension($builder->expand('%tempDir%')));
+        $this->compiler->addExtension('nette', new Bridges\Framework\NetteExtension);
+        $this->setupServices();
+    }
+
+    private function setupServices()
+    {
+        $builder = $this->getContainerBuilder();
+        foreach ($this->resources['services'] + $this->resources['presenter']['components'] as $name => $service) {
+            $name = is_string($name) ? $name : $this->prefix('service.' . $name);
+            $service = is_array($service) ? $service : ['class' => $service];
+            $definition = $builder->hasDefinition($name) ? $builder->getDefinition($name) : $builder->addDefinition($name);
+            interface_exists($service['class']) ? $definition->setImplement($service['class']) : $definition->setClass($service['class']);
+            if (isset($service['parameters'])) {
+                $definition->setParameters($service['parameters']);
+                if (!isset($service['arguments'])) {
+                    $service['arguments'] = array_map(function ($parameter) {
+                        return new PhpGenerator\PhpLiteral('$' . $parameter);
+                    }, $service['parameters']);
+                }
+            }
+            if (isset($service['arguments'])) {
+                $definition->setArguments($service['arguments']);
+            }
+            if (!isset($service['setup'])) {
+                continue;
+            }
+            foreach ($service['setup'] as $method => $arguments) {
+                $definition->addSetup($method, $arguments);
+            }
+        }
     }
 
 }

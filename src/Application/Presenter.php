@@ -3,38 +3,63 @@
 namespace WebEdit\Application;
 
 use Nette\Application\UI;
-use WebEdit\Menu;
-use WebEdit\Templating;
 use WebEdit\Application;
+use WebEdit\Templating;
 
-abstract class Presenter extends UI\Presenter {
+abstract class Presenter extends UI\Presenter
+{
 
     /**
      * @persistent
      */
     public $locale;
-    private $menuControl;
 
-    public function injectMenuControl(Menu\Control\Factory $control) {
-        $this->menuControl = $control;
-    }
+    /**
+     * @var array
+     */
+    private $components;
 
-    protected function createComponentMenu() {
-        return $this->menuControl->create();
-    }
-
-    public function formatTemplateFiles() {
+    /**
+     * @return Templating\Template
+     */
+    public function formatTemplateFiles()
+    {
         return $this['template'][$this->view];
     }
 
-    public function formatLayoutTemplateFiles() {
+    /**
+     * @return Templating\Template
+     */
+    public function formatLayoutTemplateFiles()
+    {
         return $this['template']['layout'];
     }
 
-    protected function createComponentTemplate() {
-        return new Application\Control\Multiplier(function($view) {
-            return new Templating\Template($view);
-        });
+    /**
+     * @param array $components
+     */
+    public function setComponents($components)
+    {
+        $this->components = $components;
+    }
+
+    protected function createComponent($name)
+    {
+        return parent::createComponent($name) ?: $this->registerComponent($name);
+    }
+
+    /**
+     * @param string $name
+     * @return Application\Control
+     */
+    public function registerComponent($name)
+    {
+        $component = NULL;
+        if (isset($this->components[$name])) {
+            $class = isset($this->components[$name]['class']) ? $this->components[$name]['class'] : $this->components[$name];
+            $component = $this->context->getByType($class)->create();
+        }
+        return $component;
     }
 
 }

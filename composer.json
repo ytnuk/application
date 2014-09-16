@@ -7,13 +7,9 @@
         }
     },
     "require": {
-        "nette/bootstrap": "dev-master",
-        "tracy/tracy": "dev-master",
-        "nette/safe-stream": "dev-master",
         "nette/application": "dev-master",
         "nette/utils": "dev-master",
         "webedit/module": "dev-master",
-        "webedit/routing": "dev-master",
         "webedit/templating": "dev-master",
         "webedit/menu": "dev-master"
     },

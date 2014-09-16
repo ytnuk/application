@@ -2,7 +2,10 @@
 
 namespace WebEdit\Application;
 
-interface Provider {
-
+interface Provider
+{
+    /**
+     * @return array
+     */
     public function getApplicationResources();
 }
