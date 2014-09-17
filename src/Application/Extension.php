@@ -7,52 +7,57 @@ use Nette\PhpGenerator;
 use WebEdit\Application;
 use WebEdit\Module;
 
-final class Extension extends Module\Extension
+final class Extension extends Module\Extension implements Application\Provider
 {
-
-    protected $resources = [
-        'presenter' => [
-            'mapping' => ['*' => 'WebEdit\*\*'],
-            'components' => []
-        ],
-        'services' => []
-    ];
 
     public function getApplicationResources()
     {
         return [
+            'presenter' => [
+                'mapping' => ['*' => 'WebEdit\*\*']
+            ]
+        ];
+    }
+
+    public function getResources()
+    {
+        return [
+            'presenter' => [
+                'components' => []
+            ],
             'services' => [
-                'application' => [
-                    'class' => Application::class
-                ],
-                [
+                'application' => Application::class,
+                $this->prefix('factory') => [
                     'class' => Application\Presenter\Factory::class,
                     'arguments' => [new PhpGenerator\PhpLiteral('$this')],
                     'setup' => [
-                        'setMapping' => [$this->resources['presenter']['mapping']],
-                        'setComponents' => [$this->resources['presenter']['components']]
+                        'setMapping' => [$this['presenter']['mapping']],
+                        'setComponents' => [$this['presenter']['components']]
                     ]
                 ]
             ]
         ];
     }
 
-    protected function startup()
+    public function loadConfiguration()
     {
         $builder = $this->getContainerBuilder();
-        $this->compiler->addExtension('cache', new Bridges\CacheDI\CacheExtension($builder->expand('%tempDir%')));
-        $this->compiler->addExtension('nette', new Bridges\Framework\NetteExtension);
+        $this->compiler->addExtension($this->prefix('cache'), new Bridges\CacheDI\CacheExtension($builder->expand('%tempDir%')));
+        $this->compiler->addExtension($this->prefix('framework'), new Bridges\Framework\NetteExtension);
         $this->setupServices();
     }
 
     private function setupServices()
     {
         $builder = $this->getContainerBuilder();
-        foreach ($this->resources['services'] + $this->resources['presenter']['components'] as $name => $service) {
+        foreach ($this['services'] + $this['presenter']['components'] as $name => $service) {
             $name = is_string($name) ? $name : $this->prefix('service.' . $name);
             $service = is_array($service) ? $service : ['class' => $service];
             $definition = $builder->hasDefinition($name) ? $builder->getDefinition($name) : $builder->addDefinition($name);
             interface_exists($service['class']) ? $definition->setImplement($service['class']) : $definition->setClass($service['class']);
+            if (isset($service['implement'])) {
+                $definition->setImplement($service['implement']);
+            }
             if (isset($service['parameters'])) {
                 $definition->setParameters($service['parameters']);
                 if (!isset($service['arguments'])) {
