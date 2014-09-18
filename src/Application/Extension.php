@@ -26,7 +26,7 @@ final class Extension extends Module\Extension implements Application\Provider
                 'components' => []
             ],
             'services' => [
-                'application' => Application::class,
+                $this->prefix() => Application::class,
                 $this->prefix('factory') => [
                     'class' => Application\Presenter\Factory::class,
                     'arguments' => [new PhpGenerator\PhpLiteral('$this')],
@@ -41,8 +41,7 @@ final class Extension extends Module\Extension implements Application\Provider
 
     public function loadConfiguration()
     {
-        $builder = $this->getContainerBuilder();
-        $this->compiler->addExtension($this->prefix('cache'), new Bridges\CacheDI\CacheExtension($builder->expand('%tempDir%')));
+        $this->compiler->addExtension($this->prefix('cache'), new Bridges\CacheDI\CacheExtension($this->getContainerBuilder()->parameters['tempDir']));
         $this->compiler->addExtension($this->prefix('framework'), new Bridges\Framework\NetteExtension);
         $this->setupServices();
     }
