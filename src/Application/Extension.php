@@ -5,10 +5,24 @@ namespace WebEdit\Application;
 use Nette\Bridges;
 use Nette\PhpGenerator;
 use WebEdit\Application;
+use WebEdit\Bootstrap;
 use WebEdit\Module;
 
-final class Extension extends Module\Extension implements Application\Provider
+final class Extension extends Module\Extension implements Application\Provider, Bootstrap\Provider
 {
+
+    public function getBootstrapResources()
+    {
+        return [
+            'extensions' => [
+                $this->prefix('framework') => Bridges\Framework\NetteExtension::class,
+                $this->prefix('cache') => [
+                    'class' => Bridges\CacheDI\CacheExtension::class,
+                    'parameters' => ['tempDir']
+                ]
+            ]
+        ];
+    }
 
     public function getApplicationResources()
     {
@@ -41,8 +55,6 @@ final class Extension extends Module\Extension implements Application\Provider
 
     public function loadConfiguration()
     {
-        $this->compiler->addExtension($this->prefix('cache'), new Bridges\CacheDI\CacheExtension($this->getContainerBuilder()->parameters['tempDir']));
-        $this->compiler->addExtension($this->prefix('framework'), new Bridges\Framework\NetteExtension);
         $this->setupServices();
     }
 
