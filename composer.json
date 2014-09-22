@@ -3,7 +3,12 @@
     "type": "webedit-module",
     "extra": {
         "extensions": {
-            "application": "WebEdit\\Application\\Extension"
+            "application": "WebEdit\\Application\\Extension",
+            "framework": "Nette\\Bridges\\Framework\\NetteExtension",
+            "cache": {
+                "class": "Nette\\Bridges\\CacheDI\\CacheExtension",
+                "parameters": ["tempDir"]
+            }
         }
     },
     "require": {
