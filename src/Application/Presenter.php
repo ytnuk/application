@@ -2,7 +2,6 @@
 
 namespace WebEdit\Application;
 
-use Kdyby\Translation;
 use Nette\Application\UI;
 use WebEdit\Application;
 use WebEdit\Templating;
