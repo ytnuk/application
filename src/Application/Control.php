@@ -12,15 +12,16 @@ use WebEdit\Application;
 abstract class Control extends UI\Control
 {
 
-    private $view = 'View';
+    private $view = 'view';
     private $functions = [];
+    private $counter = [];
 
     public function __call($name, $arguments = [])
     {
         if (Utils\Strings::startsWith($name, 'render')) {
             $default = $this->view;
             if ($name != 'render') {
-                $this->view = Utils\Strings::substring($name, 6);
+                $this->view = lcfirst(Utils\Strings::substring($name, 6));
             }
             $result = call_user_func_array([$this, 'render'], $arguments);
             $this->view = $default;
@@ -36,11 +37,17 @@ abstract class Control extends UI\Control
 
     private function render()
     {
+        if (isset($this->counter[$this->view])) {
+            $this->counter[$this->view] += 1;
+        } else {
+            $this->counter[$this->view] = 1;
+        }
+        $this->template->uniqueId = $this->getUniqueId() . '-' . $this->view . '-' . $this->counter[$this->view]; //TODO: implement as helper |prefix
         $this->callFunction('startup', NULL, TRUE);
-        $this->callFunction('startup' . $this->view, func_get_args(), TRUE);
+        $this->callFunction('startup' . ucfirst($this->view), func_get_args(), TRUE);
         $this->callFunction('beforeRender');
-        $this->callFunction('render' . $this->view, func_get_args());
-        $this->template->render($this['template'][lcfirst($this->view)]);
+        $this->callFunction('render' . ucfirst($this->view), func_get_args());
+        $this->template->render($this['template'][$this->view]);
     }
 
     /**
