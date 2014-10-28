@@ -7,28 +7,28 @@ use WebEdit\Application;
 
 final class Factory extends PresenterFactory
 {
-    /**
-     * @var array
-     */
-    private $components;
+	/**
+	 * @var array
+	 */
+	private $components;
 
-    /**
-     * @param string $name
-     * @return Application\Presenter
-     */
-    public function createPresenter($name)
-    {
-        $presenter = parent::createPresenter($name);
-        $presenter->setComponents($this->components);
-        return $presenter;
-    }
+	/**
+	 * @param string $name
+	 * @return Application\Presenter
+	 */
+	public function createPresenter($name)
+	{
+		$presenter = parent::createPresenter($name);
+		$presenter->setComponents($this->components);
+		return $presenter;
+	}
 
-    /**
-     * @param array $components
-     */
-    public function setComponents($components)
-    {
-        $this->components = $components;
-    }
+	/**
+	 * @param array $components
+	 */
+	public function setComponents($components)
+	{
+		$this->components = $components;
+	}
 
 }
