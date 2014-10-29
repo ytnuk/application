@@ -7,14 +7,25 @@ use Nette\PhpGenerator;
 use WebEdit\Application;
 use WebEdit\Module;
 
+/**
+ * Class Extension
+ *
+ * @package WebEdit\Application
+ */
 final class Extension extends Module\Extension implements Application\Provider
 {
 
+	/**
+	 * @return array
+	 */
 	public function getApplicationResources()
 	{
 		return ['presenter' => ['mapping' => ['*' => 'WebEdit\*\*']]];
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getResources()
 	{
 		return ['presenter' => ['components' => []], 'services' => [$this->prefix() => Application::class, $this->prefix('factory') => ['class' => Application\Presenter\Factory::class, 'arguments' => [new PhpGenerator\PhpLiteral('$this')], 'setup' => ['setMapping' => [$this['presenter']['mapping']], 'setComponents' => [$this['presenter']['components']]]]]];

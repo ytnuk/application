@@ -5,6 +5,11 @@ namespace WebEdit\Application\Presenter;
 use Nette\Application\PresenterFactory;
 use WebEdit\Application;
 
+/**
+ * Class Factory
+ *
+ * @package WebEdit\Application
+ */
 final class Factory extends PresenterFactory
 {
 
@@ -28,7 +33,7 @@ final class Factory extends PresenterFactory
 	/**
 	 * @param array $components
 	 */
-	public function setComponents($components)
+	public function setComponents(array $components)
 	{
 		$this->components = $components;
 	}

@@ -2,6 +2,11 @@
 
 namespace WebEdit\Application;
 
+/**
+ * Interface Provider
+ *
+ * @package WebEdit\Application
+ */
 interface Provider
 {
 

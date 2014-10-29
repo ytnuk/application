@@ -2,11 +2,15 @@
 
 namespace WebEdit\Application;
 
-use Nette\Application\UI;
-use WebEdit\Application;
+use Nette\Application;
 use WebEdit\Templating;
 
-abstract class Presenter extends UI\Presenter
+/**
+ * Class Presenter
+ *
+ * @package WebEdit\Application
+ */
+abstract class Presenter extends Application\UI\Presenter
 {
 
 	/**
@@ -37,11 +41,15 @@ abstract class Presenter extends UI\Presenter
 	/**
 	 * @param array $components
 	 */
-	public function setComponents($components)
+	public function setComponents(array $components)
 	{
 		$this->components = $components;
 	}
 
+	/**
+	 * @param string $name
+	 * @return Control
+	 */
 	protected function createComponent($name)
 	{
 		return parent::createComponent($name) ? : $this->registerComponent($name);
@@ -49,7 +57,7 @@ abstract class Presenter extends UI\Presenter
 
 	/**
 	 * @param string $name
-	 * @return Application\Control
+	 * @return Control
 	 */
 	public function registerComponent($name)
 	{
