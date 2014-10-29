@@ -12,31 +12,12 @@ final class Extension extends Module\Extension implements Application\Provider
 
 	public function getApplicationResources()
 	{
-		return [
-			'presenter' => [
-				'mapping' => ['*' => 'WebEdit\*\*']
-			]
-		];
+		return ['presenter' => ['mapping' => ['*' => 'WebEdit\*\*']]];
 	}
 
 	public function getResources()
 	{
-		return [
-			'presenter' => [
-				'components' => []
-			],
-			'services' => [
-				$this->prefix() => Application::class,
-				$this->prefix('factory') => [
-					'class' => Application\Presenter\Factory::class,
-					'arguments' => [new PhpGenerator\PhpLiteral('$this')],
-					'setup' => [
-						'setMapping' => [$this['presenter']['mapping']],
-						'setComponents' => [$this['presenter']['components']]
-					]
-				]
-			]
-		];
+		return ['presenter' => ['components' => []], 'services' => [$this->prefix() => Application::class, $this->prefix('factory') => ['class' => Application\Presenter\Factory::class, 'arguments' => [new PhpGenerator\PhpLiteral('$this')], 'setup' => ['setMapping' => [$this['presenter']['mapping']], 'setComponents' => [$this['presenter']['components']]]]]];
 	}
 
 	public function loadConfiguration()
@@ -57,7 +38,7 @@ final class Extension extends Module\Extension implements Application\Provider
 			}
 			if (isset($service['parameters'])) {
 				$definition->setParameters($service['parameters']);
-				if (!isset($service['arguments'])) {
+				if ( ! isset($service['arguments'])) {
 					$service['arguments'] = array_map(function ($parameter) {
 						return new PhpGenerator\PhpLiteral('$' . $parameter);
 					}, $service['parameters']);
@@ -66,7 +47,7 @@ final class Extension extends Module\Extension implements Application\Provider
 			if (isset($service['arguments'])) {
 				$definition->setArguments($service['arguments']);
 			}
-			if (!isset($service['setup'])) {
+			if ( ! isset($service['setup'])) {
 				continue;
 			}
 			foreach ($service['setup'] as $method => $arguments) {
@@ -74,5 +55,4 @@ final class Extension extends Module\Extension implements Application\Provider
 			}
 		}
 	}
-
 }

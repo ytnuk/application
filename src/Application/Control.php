@@ -25,14 +25,16 @@ abstract class Control extends UI\Control
 			}
 			$result = call_user_func_array([$this, 'render'], $arguments);
 			$this->view = $default;
+
 			return $result;
 		}
+
 		return parent::__call($name, $arguments);
 	}
 
 	protected function createComponent($name)
 	{
-		return parent::createComponent($name) ?: $this->presenter->registerComponent($name);
+		return parent::createComponent($name) ? : $this->presenter->registerComponent($name);
 	}
 
 	private function render()
@@ -61,11 +63,10 @@ abstract class Control extends UI\Control
 			return;
 		}
 		if (method_exists($this, $name)) {
-			call_user_func_array([$this, $name], $arguments ?: []);
+			call_user_func_array([$this, $name], $arguments ? : []);
 		}
 		if ($once) {
 			$this->functions[$name] = TRUE;
 		}
 	}
-
 }

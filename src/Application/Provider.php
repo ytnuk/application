@@ -4,6 +4,7 @@ namespace WebEdit\Application;
 
 interface Provider
 {
+
 	/**
 	 * @return array
 	 */

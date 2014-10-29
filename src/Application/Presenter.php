@@ -13,7 +13,6 @@ abstract class Presenter extends UI\Presenter
 	 * @persistent
 	 */
 	public $locale;
-
 	/**
 	 * @var array
 	 */
@@ -45,7 +44,7 @@ abstract class Presenter extends UI\Presenter
 
 	protected function createComponent($name)
 	{
-		return parent::createComponent($name) ?: $this->registerComponent($name);
+		return parent::createComponent($name) ? : $this->registerComponent($name);
 	}
 
 	/**
@@ -59,7 +58,7 @@ abstract class Presenter extends UI\Presenter
 			$class = isset($this->components[$name]['class']) ? $this->components[$name]['class'] : $this->components[$name];
 			$component = $this->context->getByType($class)->create();
 		}
+
 		return $component;
 	}
-
 }

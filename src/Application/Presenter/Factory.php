@@ -7,6 +7,7 @@ use WebEdit\Application;
 
 final class Factory extends PresenterFactory
 {
+
 	/**
 	 * @var array
 	 */
@@ -20,6 +21,7 @@ final class Factory extends PresenterFactory
 	{
 		$presenter = parent::createPresenter($name);
 		$presenter->setComponents($this->components);
+
 		return $presenter;
 	}
 
@@ -30,5 +32,4 @@ final class Factory extends PresenterFactory
 	{
 		$this->components = $components;
 	}
-
 }
