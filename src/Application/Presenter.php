@@ -64,7 +64,8 @@ abstract class Presenter extends Application\UI\Presenter
 		$component = NULL;
 		if (isset($this->components[$name])) {
 			$class = isset($this->components[$name]['class']) ? $this->components[$name]['class'] : $this->components[$name];
-			$component = $this->context->getByType($class)->create();
+			$component = $this->context->getByType($class)
+				->create();
 		}
 
 		return $component;

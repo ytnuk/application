@@ -39,7 +39,10 @@ abstract class Control extends UI\Control
 			if ($name != 'render') {
 				$this->view = lcfirst(Utils\Strings::substring($name, 6));
 			}
-			$result = call_user_func_array([$this, 'render'], $arguments);
+			$result = call_user_func_array([
+				$this,
+				'render'
+			], $arguments);
 			$this->view = $default;
 
 			return $result;
@@ -83,7 +86,10 @@ abstract class Control extends UI\Control
 			return;
 		}
 		if (method_exists($this, $name)) {
-			call_user_func_array([$this, $name], $arguments);
+			call_user_func_array([
+				$this,
+				$name
+			], $arguments);
 		}
 		if ($once) {
 			$this->functions[$name] = TRUE;

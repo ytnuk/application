@@ -1,20 +1,8 @@
 {
 	"name": "webedit/application",
-	"type": "webedit-module",
-	"extra": {
-		"extensions": {
-			"application": "WebEdit\\Application\\Extension",
-			"framework": "Nette\\Bridges\\Framework\\NetteExtension",
-			"cache": {
-				"class": "Nette\\Bridges\\CacheDI\\CacheExtension",
-				"parameters": ["tempDir"]
-			}
-		}
-	},
 	"require": {
 		"nette/application": "dev-master",
 		"nette/utils": "dev-master",
-		"webedit/module": "dev-master",
 		"webedit/templating": "dev-master",
 		"webedit/menu": "dev-master"
 	},
