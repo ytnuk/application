@@ -18,10 +18,12 @@ abstract class Control extends UI\Control
 	 * @var string
 	 */
 	private $view = 'view';
+
 	/**
 	 * @var array
 	 */
 	private $functions = [];
+
 	/**
 	 * @var array
 	 */
@@ -30,6 +32,7 @@ abstract class Control extends UI\Control
 	/**
 	 * @param string $name
 	 * @param array $arguments
+	 *
 	 * @return mixed
 	 */
 	public function __call($name, $arguments = [])
@@ -53,6 +56,7 @@ abstract class Control extends UI\Control
 
 	/**
 	 * @param string $name
+	 *
 	 * @return self
 	 */
 	protected function createComponent($name)

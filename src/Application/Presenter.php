@@ -17,6 +17,7 @@ abstract class Presenter extends Application\UI\Presenter
 	 * @persistent
 	 */
 	public $locale;
+
 	/**
 	 * @var array
 	 */
@@ -48,6 +49,7 @@ abstract class Presenter extends Application\UI\Presenter
 
 	/**
 	 * @param string $name
+	 *
 	 * @return Control
 	 */
 	protected function createComponent($name)
@@ -57,6 +59,7 @@ abstract class Presenter extends Application\UI\Presenter
 
 	/**
 	 * @param string $name
+	 *
 	 * @return Control
 	 */
 	public function registerComponent($name)

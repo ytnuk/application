@@ -20,6 +20,7 @@ final class Factory extends PresenterFactory
 
 	/**
 	 * @param string $name
+	 *
 	 * @return Application\Presenter
 	 */
 	public function createPresenter($name)
