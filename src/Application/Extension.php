@@ -3,7 +3,6 @@
 namespace WebEdit\Application;
 
 use Nette\Bridges;
-use Nette\DI;
 use WebEdit\Application;
 use WebEdit\Config;
 
@@ -12,25 +11,17 @@ use WebEdit\Config;
  *
  * @package WebEdit\Application
  */
-final class Extension extends DI\CompilerExtension implements Config\Provider
+final class Extension extends Bridges\ApplicationDI\ApplicationExtension implements Config\Provider
 {
 
 	const COMPONENT_TAG = 'application.component';
 
-	/**
-	 * @return array
-	 */
 	public function getConfigResources()
 	{
 		return [
-			Bridges\ApplicationDI\ApplicationExtension::class => [
+			self::class => [
 				'mapping' => [
 					'*' => 'WebEdit\*\*'
-				]
-			],
-			'services' => [
-				'nette.presenterFactory' => [
-					'factory' => Application\Presenter\Factory::class
 				]
 			]
 		];
@@ -45,6 +36,7 @@ final class Extension extends DI\CompilerExtension implements Config\Provider
 			$components[$name] = $definition->getImplement() ? : $definition->getClass();
 		}
 		$builder->getDefinition('nette.presenterFactory')
+			->setFactory(Application\Presenter\Factory::class)
 			->addSetup('setComponents', [$components]);
 	}
 }
