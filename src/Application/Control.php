@@ -2,16 +2,15 @@
 
 namespace WebEdit\Application;
 
-use Nette\Application\UI;
+use Nette\Application;
 use Nette\Utils;
-use WebEdit\Application;
 
 /**
  * Class Control
  *
  * @package WebEdit\Application
  */
-abstract class Control extends UI\Control
+abstract class Control extends Application\UI\Control
 {
 
 	/**

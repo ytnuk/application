@@ -3,7 +3,6 @@
 namespace WebEdit\Application;
 
 use Nette\Bridges;
-use WebEdit\Application;
 use WebEdit\Config;
 
 /**
@@ -48,7 +47,7 @@ final class Extension extends Bridges\ApplicationDI\ApplicationExtension impleme
 			$components[$name] = $definition->getImplement() ? : $definition->getClass();
 		}
 		$builder->getDefinition('nette.presenterFactory')
-			->setFactory(Application\Presenter\Factory::class)
+			->setFactory(Presenter\Factory::class)
 			->addSetup('setComponents', [$components]);
 	}
 }
