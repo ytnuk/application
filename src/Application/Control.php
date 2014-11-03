@@ -70,7 +70,11 @@ abstract class Control extends Application\UI\Control
 		} else {
 			$this->counter[$this->view] = 1;
 		}
-		$this->template->uniqueId = $this->getUniqueId() . '-' . $this->view . '-' . $this->counter[$this->view]; //TODO: implement as helper |prefix
+		$this->template->uniqueId = implode('-', [
+			$this->getUniqueId(),
+			$this->view,
+			$this->counter[$this->view]
+		]); //TODO: implement as helper |prefix
 		$this->callFunction('startup', [], TRUE);
 		$this->callFunction('startup' . ucfirst($this->view), func_get_args(), TRUE);
 		$this->callFunction('beforeRender');
