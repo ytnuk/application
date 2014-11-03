@@ -16,12 +16,24 @@ final class Extension extends Bridges\ApplicationDI\ApplicationExtension impleme
 
 	const COMPONENT_TAG = 'application.component';
 
+	/**
+	 * @return array
+	 */
 	public function getConfigResources()
 	{
 		return [
-			self::class => [
+			parent::class => [
 				'mapping' => [
 					'*' => 'WebEdit\*\*'
+				],
+				'errorPresenter' => NULL
+			],
+			Bridges\Framework\NetteExtension::class => [
+				'session' => [
+					'debugger' => TRUE
+				],
+				'container' => [
+					'debugger' => TRUE
 				]
 			]
 		];
