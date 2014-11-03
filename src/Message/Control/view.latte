@@ -1,8 +1,0 @@
-<aside n:inner-foreach="$messages as $message" n:if="$messages">
-	<div class="alert alert-{$message->type}">
-		<p>
-			<strong>{$message->type|translate|capitalize}!</strong>
-			{$message->message|translate}
-		</p>
-	</div>
-</aside>
