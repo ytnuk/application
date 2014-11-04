@@ -24,11 +24,6 @@ abstract class Control extends Application\UI\Control
 	private $functions = [];
 
 	/**
-	 * @var array
-	 */
-	private $counter = [];
-
-	/**
 	 * @param string $name
 	 * @param array $arguments
 	 *
@@ -37,7 +32,7 @@ abstract class Control extends Application\UI\Control
 	public function __call($name, $arguments = [])
 	{
 		if (Utils\Strings::startsWith($name, 'render')) {
-			$default = $this->view;
+			$view = $this->view;
 			if ($name != 'render') {
 				$this->view = lcfirst(Utils\Strings::substring($name, 6));
 			}
@@ -45,7 +40,7 @@ abstract class Control extends Application\UI\Control
 				$this,
 				'render'
 			], $arguments);
-			$this->view = $default;
+			$this->view = $view;
 
 			return $result;
 		}
@@ -65,16 +60,6 @@ abstract class Control extends Application\UI\Control
 
 	private function render()
 	{
-		if (isset($this->counter[$this->view])) {
-			$this->counter[$this->view] += 1;
-		} else {
-			$this->counter[$this->view] = 1;
-		}
-		$this->template->uniqueId = implode('-', [
-			$this->getUniqueId(),
-			$this->view,
-			$this->counter[$this->view]
-		]); //TODO: implement as helper |prefix
 		$this->callFunction('startup', [], TRUE);
 		$this->callFunction('startup' . ucfirst($this->view), func_get_args(), TRUE);
 		$this->callFunction('beforeRender');
