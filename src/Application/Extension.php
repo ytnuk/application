@@ -22,9 +22,6 @@ final class Extension extends Bridges\ApplicationDI\ApplicationExtension impleme
 	{
 		return [
 			parent::class => [
-				'mapping' => [
-					'*' => 'WebEdit\*\*'
-				],
 				'errorPresenter' => NULL
 			],
 			Bridges\Framework\NetteExtension::class => [
@@ -48,6 +45,7 @@ final class Extension extends Bridges\ApplicationDI\ApplicationExtension impleme
 		}
 		$builder->getDefinition('nette.presenterFactory')
 			->setFactory(Presenter\Factory::class)
-			->addSetup('setComponents', [$components]);
+			->addSetup('setComponents', [$components])
+			->addSetup('setFallbackMapping', ['WebEdit\*\*']);
 	}
 }

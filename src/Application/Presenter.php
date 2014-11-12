@@ -14,9 +14,16 @@ abstract class Presenter extends Application\UI\Presenter
 {
 
 	/**
+	 * @var string
 	 * @persistent
 	 */
 	public $locale;
+
+	/**
+	 * @var string
+	 * @persistent
+	 */
+	public $web;
 
 	/**
 	 * @var array
