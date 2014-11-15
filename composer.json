@@ -3,9 +3,7 @@
 	"require": {
 		"nette/application": "dev-master",
 		"nette/utils": "dev-master",
-		"webedit/templating": "dev-master",
-		"webedit/menu": "dev-master",
-		"webedit/routing": "dev-master"
+		"webedit/templating": "dev-master"
 	},
 	"autoload": {
 		"psr-4": {
