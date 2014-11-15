@@ -18,10 +18,6 @@ final class Factory extends PresenterFactory
 	 */
 	private $components;
 
-	private $mapping;
-
-	private $fallbackMapping;
-
 	/**
 	 * @param string $name
 	 *
@@ -43,34 +39,19 @@ final class Factory extends PresenterFactory
 		$this->components = $components;
 	}
 
-	public function setMapping(array $mapping)
-	{
-		$this->mapping = $mapping;
-
-		return parent::setMapping($mapping);
-	}
-
-	public function formatPresenterClass($presenter)
-	{
-		$class = parent::formatPresenterClass($presenter);
-		if ( ! class_exists($class)) {
-			parent::setMapping(['*' => $this->fallbackMapping]);
-			$class = parent::formatPresenterClass($presenter);
-		}
-
-		return $class;
-	}
-
+	/**
+	 * @param $class
+	 *
+	 * @return string
+	 */
 	public function unformatPresenterClass($class)
 	{
-		$presenter = parent::unformatPresenterClass($class);
-		parent::setMapping(['*' => $this->mapping['*']]);
+		if ( ! $presenter = parent::unformatPresenterClass($class)) {
+			$namespace = explode('\\', $class);
+			array_shift($namespace);
+			$presenter = implode(':', $namespace);
+		}
 
 		return $presenter;
-	}
-
-	public function setFallbackMapping($mapping)
-	{
-		$this->fallbackMapping = $mapping;
 	}
 }

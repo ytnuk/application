@@ -45,7 +45,6 @@ final class Extension extends Bridges\ApplicationDI\ApplicationExtension impleme
 		}
 		$builder->getDefinition('nette.presenterFactory')
 			->setFactory(Presenter\Factory::class)
-			->addSetup('setComponents', [$components])
-			->addSetup('setFallbackMapping', ['WebEdit\*\*']);
+			->addSetup('setComponents', [$components]);
 	}
 }
