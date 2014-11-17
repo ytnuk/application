@@ -2,15 +2,14 @@
 
 namespace WebEdit\Application;
 
-use Nette\Application;
-use Nette\Utils;
+use Nette;
 
 /**
  * Class Control
  *
  * @package WebEdit\Application
  */
-abstract class Control extends Application\UI\Control
+abstract class Control extends Nette\Application\UI\Control
 {
 
 	/**
@@ -31,10 +30,10 @@ abstract class Control extends Application\UI\Control
 	 */
 	public function __call($name, $arguments = [])
 	{
-		if (Utils\Strings::startsWith($name, 'render')) {
+		if (Nette\Utils\Strings::startsWith($name, 'render')) {
 			$view = $this->view;
 			if ($name != 'render') {
-				$this->view = lcfirst(Utils\Strings::substring($name, 6));
+				$this->view = lcfirst(Nette\Utils\Strings::substring($name, 6));
 			}
 			$result = call_user_func_array([
 				$this,

@@ -2,15 +2,15 @@
 
 namespace WebEdit\Application\Presenter;
 
-use Nette\Application\PresenterFactory;
-use WebEdit\Application;
+use Nette;
+use WebEdit;
 
 /**
  * Class Factory
  *
  * @package WebEdit\Application
  */
-final class Factory extends PresenterFactory
+final class Factory extends Nette\Application\PresenterFactory
 {
 
 	/**
@@ -21,7 +21,7 @@ final class Factory extends PresenterFactory
 	/**
 	 * @param string $name
 	 *
-	 * @return Application\Presenter
+	 * @return WebEdit\Application\Presenter
 	 */
 	public function createPresenter($name)
 	{
@@ -55,6 +55,11 @@ final class Factory extends PresenterFactory
 		return $presenter;
 	}
 
+	/**
+	 * @param string $presenter
+	 *
+	 * @return string
+	 */
 	public function formatPresenterClass($presenter)
 	{
 		$class = parent::formatPresenterClass($presenter);

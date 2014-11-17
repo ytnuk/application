@@ -2,15 +2,15 @@
 
 namespace WebEdit\Application;
 
-use Nette\Bridges;
-use WebEdit\Config;
+use Nette;
+use WebEdit;
 
 /**
  * Class Extension
  *
  * @package WebEdit\Application
  */
-final class Extension extends Bridges\ApplicationDI\ApplicationExtension implements Config\Provider
+final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension implements WebEdit\Config\Provider
 {
 
 	const COMPONENT_TAG = 'application.component';
@@ -24,7 +24,7 @@ final class Extension extends Bridges\ApplicationDI\ApplicationExtension impleme
 			parent::class => [
 				'errorPresenter' => NULL
 			],
-			Bridges\Framework\NetteExtension::class => [
+			Nette\Bridges\Framework\NetteExtension::class => [
 				'session' => [
 					'debugger' => TRUE
 				],

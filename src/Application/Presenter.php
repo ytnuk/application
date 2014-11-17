@@ -2,15 +2,15 @@
 
 namespace WebEdit\Application;
 
-use Nette\Application;
-use WebEdit\Templating;
+use Nette;
+use WebEdit;
 
 /**
  * Class Presenter
  *
  * @package WebEdit\Application
  */
-abstract class Presenter extends Application\UI\Presenter
+abstract class Presenter extends Nette\Application\UI\Presenter
 {
 
 	/**
@@ -25,7 +25,7 @@ abstract class Presenter extends Application\UI\Presenter
 	private $components;
 
 	/**
-	 * @return Templating\Template
+	 * @return WebEdit\Templating\Template
 	 */
 	public function formatTemplateFiles()
 	{
@@ -33,7 +33,7 @@ abstract class Presenter extends Application\UI\Presenter
 	}
 
 	/**
-	 * @return Templating\Template
+	 * @return WebEdit\Templating\Template
 	 */
 	public function formatLayoutTemplateFiles()
 	{
