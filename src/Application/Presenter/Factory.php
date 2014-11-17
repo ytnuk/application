@@ -54,4 +54,16 @@ final class Factory extends PresenterFactory
 
 		return $presenter;
 	}
+
+	public function formatPresenterClass($presenter)
+	{
+		$class = parent::formatPresenterClass($presenter);
+		if ($class && ! class_exists($class)) {
+			$namespace = explode('\\', $class);
+			$namespace[key($namespace)] = 'WebEdit';
+			$class = implode('\\', $namespace);
+		}
+
+		return $class;
+	}
 }
