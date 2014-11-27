@@ -20,7 +20,7 @@ abstract class Control extends Nette\Application\UI\Control
 	/**
 	 * @var array
 	 */
-	private $functions = [];
+	private $methodCalls = [];
 
 	/**
 	 * @param string $name
@@ -59,10 +59,10 @@ abstract class Control extends Nette\Application\UI\Control
 
 	private function render()
 	{
-		$this->callFunction('startup', [], TRUE);
-		$this->callFunction('startup' . ucfirst($this->view), func_get_args(), TRUE);
-		$this->callFunction('beforeRender');
-		$this->callFunction('render' . ucfirst($this->view), func_get_args());
+		$this->callMethod('startup', [], TRUE);
+		$this->callMethod('startup' . ucfirst($this->view), func_get_args(), TRUE);
+		$this->callMethod('beforeRender');
+		$this->callMethod('render' . ucfirst($this->view), func_get_args());
 		$this->template->render($this['template'][$this->view]);
 	}
 
@@ -71,9 +71,9 @@ abstract class Control extends Nette\Application\UI\Control
 	 * @param array $arguments
 	 * @param bool $once
 	 */
-	private function callFunction($name, array $arguments = [], $once = FALSE)
+	private function callMethod($name, array $arguments = [], $once = FALSE)
 	{
-		if ($once && isset($this->functions[$name])) {
+		if ($once && isset($this->methodCalls[$name])) {
 			return;
 		}
 		if (method_exists($this, $name)) {
@@ -83,7 +83,7 @@ abstract class Control extends Nette\Application\UI\Control
 			], $arguments);
 		}
 		if ($once) {
-			$this->functions[$name] = TRUE;
+			$this->methodCalls[$name] = TRUE;
 		}
 	}
 }
