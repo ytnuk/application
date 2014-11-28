@@ -1,14 +1,14 @@
 <?php
 
-namespace Kutny\Application\Presenter;
+namespace Ytnuk\Application\Presenter;
 
 use Nette;
-use Kutny;
+use Ytnuk;
 
 /**
  * Class Factory
  *
- * @package Kutny\Application
+ * @package Ytnuk\Application
  */
 final class Factory extends Nette\Application\PresenterFactory
 {
@@ -21,7 +21,7 @@ final class Factory extends Nette\Application\PresenterFactory
 	/**
 	 * @param string $name
 	 *
-	 * @return Kutny\Application\Presenter
+	 * @return Ytnuk\Application\Presenter
 	 */
 	public function createPresenter($name)
 	{
@@ -65,7 +65,7 @@ final class Factory extends Nette\Application\PresenterFactory
 		$class = parent::formatPresenterClass($presenter);
 		if ($class && ! class_exists($class)) {
 			$namespace = explode('\\', $class);
-			$namespace[key($namespace)] = 'Kutny';
+			$namespace[key($namespace)] = 'Ytnuk';
 			$class = implode('\\', $namespace);
 		}
 

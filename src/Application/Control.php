@@ -1,13 +1,13 @@
 <?php
 
-namespace Kutny\Application;
+namespace Ytnuk\Application;
 
 use Nette;
 
 /**
  * Class Control
  *
- * @package Kutny\Application
+ * @package Ytnuk\Application
  */
 abstract class Control extends Nette\Application\UI\Control
 {

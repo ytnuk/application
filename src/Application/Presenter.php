@@ -1,14 +1,14 @@
 <?php
 
-namespace Kutny\Application;
+namespace Ytnuk\Application;
 
 use Nette;
-use Kutny;
+use Ytnuk;
 
 /**
  * Class Presenter
  *
- * @package Kutny\Application
+ * @package Ytnuk\Application
  */
 abstract class Presenter extends Nette\Application\UI\Presenter
 {
@@ -25,7 +25,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	private $components;
 
 	/**
-	 * @return Kutny\Templating\Template
+	 * @return Ytnuk\Templating\Template
 	 */
 	public function formatTemplateFiles()
 	{
@@ -33,7 +33,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	}
 
 	/**
-	 * @return Kutny\Templating\Template
+	 * @return Ytnuk\Templating\Template
 	 */
 	public function formatLayoutTemplateFiles()
 	{

@@ -1,11 +1,11 @@
 <?php
 
-namespace Kutny\Application;
+namespace Ytnuk\Application;
 
 /**
  * Class Exception
  *
- * @package Kutny\Application
+ * @package Ytnuk\Application
  */
 abstract class Exception extends \Exception
 {

@@ -1,13 +1,13 @@
 {
-	"name": "kutny/application",
+	"name": "ytnuk/application",
 	"require": {
 		"nette/application": "dev-master",
 		"nette/utils": "dev-master",
-		"kutny/templating": "dev-master"
+		"ytnuk/templating": "dev-master"
 	},
 	"autoload": {
 		"psr-4": {
-			"Kutny\\": "src/"
+			"Ytnuk\\": "src/"
 		}
 	}
 }

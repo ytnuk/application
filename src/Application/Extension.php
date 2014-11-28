@@ -1,16 +1,16 @@
 <?php
 
-namespace Kutny\Application;
+namespace Ytnuk\Application;
 
 use Nette;
-use Kutny;
+use Ytnuk;
 
 /**
  * Class Extension
  *
- * @package Kutny\Application
+ * @package Ytnuk\Application
  */
-final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension implements Kutny\Config\Provider
+final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension implements Ytnuk\Config\Provider
 {
 
 	const COMPONENT_TAG = 'application.component';
