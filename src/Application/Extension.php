@@ -1,16 +1,16 @@
 <?php
 
-namespace WebEdit\Application;
+namespace Kutny\Application;
 
 use Nette;
-use WebEdit;
+use Kutny;
 
 /**
  * Class Extension
  *
- * @package WebEdit\Application
+ * @package Kutny\Application
  */
-final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension implements WebEdit\Config\Provider
+final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension implements Kutny\Config\Provider
 {
 
 	const COMPONENT_TAG = 'application.component';

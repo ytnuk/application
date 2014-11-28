@@ -1,11 +1,11 @@
 <?php
 
-namespace WebEdit\Application;
+namespace Kutny\Application;
 
 /**
  * Class Exception
  *
- * @package WebEdit\Application
+ * @package Kutny\Application
  */
 abstract class Exception extends \Exception
 {

@@ -1,14 +1,14 @@
 <?php
 
-namespace WebEdit\Application;
+namespace Kutny\Application;
 
 use Nette;
-use WebEdit;
+use Kutny;
 
 /**
  * Class Presenter
  *
- * @package WebEdit\Application
+ * @package Kutny\Application
  */
 abstract class Presenter extends Nette\Application\UI\Presenter
 {
@@ -25,7 +25,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	private $components;
 
 	/**
-	 * @return WebEdit\Templating\Template
+	 * @return Kutny\Templating\Template
 	 */
 	public function formatTemplateFiles()
 	{
@@ -33,7 +33,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	}
 
 	/**
-	 * @return WebEdit\Templating\Template
+	 * @return Kutny\Templating\Template
 	 */
 	public function formatLayoutTemplateFiles()
 	{

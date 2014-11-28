@@ -1,14 +1,14 @@
 <?php
 
-namespace WebEdit\Application\Presenter;
+namespace Kutny\Application\Presenter;
 
 use Nette;
-use WebEdit;
+use Kutny;
 
 /**
  * Class Factory
  *
- * @package WebEdit\Application
+ * @package Kutny\Application
  */
 final class Factory extends Nette\Application\PresenterFactory
 {
@@ -21,7 +21,7 @@ final class Factory extends Nette\Application\PresenterFactory
 	/**
 	 * @param string $name
 	 *
-	 * @return WebEdit\Application\Presenter
+	 * @return Kutny\Application\Presenter
 	 */
 	public function createPresenter($name)
 	{
@@ -65,7 +65,7 @@ final class Factory extends Nette\Application\PresenterFactory
 		$class = parent::formatPresenterClass($presenter);
 		if ($class && ! class_exists($class)) {
 			$namespace = explode('\\', $class);
-			$namespace[key($namespace)] = 'WebEdit';
+			$namespace[key($namespace)] = 'Kutny';
 			$class = implode('\\', $namespace);
 		}
 

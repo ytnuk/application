@@ -1,13 +1,13 @@
 <?php
 
-namespace WebEdit\Application;
+namespace Kutny\Application;
 
 use Nette;
 
 /**
  * Class Control
  *
- * @package WebEdit\Application
+ * @package Kutny\Application
  */
 abstract class Control extends Nette\Application\UI\Control
 {
