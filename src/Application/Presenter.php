@@ -14,12 +14,6 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 {
 
 	/**
-	 * @var string
-	 * @persistent
-	 */
-	public $locale;
-
-	/**
 	 * @var array
 	 */
 	private $components;
@@ -29,7 +23,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function formatTemplateFiles()
 	{
-		return $this['template'][$this->view];
+		return $this[Ytnuk\Templating\Template::class][$this->view];
 	}
 
 	/**
@@ -37,7 +31,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function formatLayoutTemplateFiles()
 	{
-		return $this['template']['layout'];
+		return $this[Ytnuk\Templating\Template::class]['layout'];
 	}
 
 	/**
@@ -46,6 +40,37 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	public function setComponents(array $components)
 	{
 		$this->components = $components;
+	}
+
+	/**
+	 * @param $name
+	 * @param bool $need
+	 *
+	 * @return Nette\ComponentModel\IComponent|NULL
+	 */
+	public function getComponent($name, $need = TRUE)
+	{
+		$name = $this->formatComponentName($name);
+
+		return parent::getComponent($name, $need);
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return string
+	 */
+	public function formatComponentName($name)
+	{
+		return str_replace('\\', NULL, lcfirst($name));
+	}
+
+	protected function beforeRender()
+	{
+		parent::beforeRender();
+		if ($this->snippetMode = $this->isAjax() && ! $this->request->isMethod('POST') && ! $this->getParameter('do')) {
+			$this->redrawControl();
+		}
 	}
 
 	/**
@@ -60,16 +85,21 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 	/**
 	 * @param string $name
+	 * @param array $arguments
 	 *
 	 * @return Control
 	 */
-	public function registerComponent($name)
+	protected function registerComponent($name, $arguments = [])
 	{
+		$name = $this->formatComponentName($name);
 		$component = NULL;
 		if (isset($this->components[$name])) {
 			$component = $this->context->getByType($this->components[$name]);
 			if (method_exists($component, 'create')) {
-				$component = $component->create();
+				$component = call_user_func_array([
+					$component,
+					'create'
+				], $arguments);
 			}
 		}
 

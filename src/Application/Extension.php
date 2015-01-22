@@ -24,24 +24,22 @@ final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension i
 			parent::class => [
 				'errorPresenter' => NULL
 			],
-			Nette\Bridges\Framework\NetteExtension::class => [
-				'session' => [
-					'debugger' => TRUE
-				],
-				'container' => [
-					'debugger' => TRUE
-				]
-			]
+			Nette\Bridges\HttpDI\SessionExtension::class => [
+				'debugger' => TRUE,
+			],
+			Nette\DI\Extensions\DIExtension::class => [
+				'debugger' => TRUE,
+			],
 		];
 	}
 
 	public function beforeCompile()
 	{
 		$builder = $this->getContainerBuilder();
-		$components = $builder->findByTag(self::COMPONENT_TAG);
-		foreach ($components as $name => $component) {
+		$components = [];
+		foreach ($builder->findByTag(self::COMPONENT_TAG) as $name => $component) {
 			$definition = $builder->getDefinition($name);
-			$components[$name] = $definition->getImplement() ? : $definition->getClass();
+			$components[str_replace('_', NULL, lcfirst($name))] = $definition->getImplement() ? : $definition->getClass();
 		}
 		$builder->getDefinition('nette.presenterFactory')
 			->setFactory(Presenter\Factory::class)
