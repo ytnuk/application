@@ -50,25 +50,37 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function getComponent($name, $need = TRUE)
 	{
-		$name = $this->formatComponentName($name);
-
-		return parent::getComponent($name, $need);
+		return parent::getComponent(str_replace('\\', NULL, lcfirst($name)), $need);
 	}
 
 	/**
-	 * @param string $name
+	 * @param $component
+	 * @param Ytnuk\Link\Entity|string $destination
+	 * @param array $args
+	 * @param $mode
 	 *
 	 * @return string
+	 * @throws Nette\Application\UI\InvalidLinkException
 	 */
-	public function formatComponentName($name)
+	protected function createRequest($component, $destination, array $args, $mode)
 	{
-		return str_replace('\\', NULL, lcfirst($name));
+		if ($destination instanceof Ytnuk\Link\Entity) {
+			$component = $this;
+			$args = [];
+			foreach ($destination->parameters->iterator as $parameter) {
+				$args[$parameter->key] = $parameter->data;
+			}
+			$destination = $destination->destination;
+		}
+
+		return parent::createRequest($component, $destination, $args, $mode);
 	}
 
 	protected function beforeRender()
 	{
 		parent::beforeRender();
-		if ($this->snippetMode = $this->isAjax() && ! $this->request->isMethod('POST') && ! $this->getParameter('do')) {
+		$this->snippetMode = $this->isAjax();
+		if ($this->snippetMode && ! $this->request->isMethod('POST') && ! $this->getParameter('do')) {
 			$this->redrawControl();
 		}
 	}
@@ -80,26 +92,14 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	protected function createComponent($name)
 	{
-		return parent::createComponent($name) ? : $this->registerComponent($name);
-	}
-
-	/**
-	 * @param string $name
-	 * @param array $arguments
-	 *
-	 * @return Control
-	 */
-	protected function registerComponent($name, $arguments = [])
-	{
-		$name = $this->formatComponentName($name);
-		$component = NULL;
-		if (isset($this->components[$name])) {
+		$component = parent::createComponent($name);
+		if ( ! $component && isset($this->components[$name])) {
 			$component = $this->context->getByType($this->components[$name]);
 			if (method_exists($component, 'create')) {
-				$component = call_user_func_array([
+				$component = call_user_func([
 					$component,
 					'create'
-				], $arguments);
+				]);
 			}
 		}
 

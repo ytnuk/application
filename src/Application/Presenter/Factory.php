@@ -39,22 +39,7 @@ final class Factory extends Nette\Application\PresenterFactory
 		$this->components = $components;
 	}
 
-	/**
-	 * @param $class
-	 *
-	 * @return string
-	 */
-	public function unformatPresenterClass($class)
-	{
-		if ( ! $presenter = parent::unformatPresenterClass($class)) {
-			$namespace = explode('\\', $class);
-			array_shift($namespace);
-			$presenter = implode(':', $namespace);
-		}
-
-		return $presenter;
-	}
-
+	//TODO: remove below method => default mapping should be to base (Ytnuk) namespace only, EVERY presenter then will be registered as service to allow overwriting in project
 	/**
 	 * @param string $presenter
 	 *

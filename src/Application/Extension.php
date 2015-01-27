@@ -22,7 +22,10 @@ final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension i
 	{
 		return [
 			parent::class => [
-				'errorPresenter' => NULL
+				'errorPresenter' => NULL,
+				'mapping' => [
+					'*' => 'Ytnuk\*\*'
+				]
 			],
 			Nette\Bridges\HttpDI\SessionExtension::class => [
 				'debugger' => TRUE,

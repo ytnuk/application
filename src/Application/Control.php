@@ -86,9 +86,7 @@ abstract class Control extends Nette\Application\UI\Control
 	 */
 	public function getComponent($name, $need = TRUE)
 	{
-		$name = $this->presenter->formatComponentName($name);
-
-		return parent::getComponent($name, $need);
+		return parent::getComponent(str_replace('\\', NULL, lcfirst($name)), $need);
 	}
 
 	/**
