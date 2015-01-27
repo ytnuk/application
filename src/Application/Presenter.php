@@ -68,7 +68,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 			$component = $this;
 			$args = [];
 			foreach ($destination->parameters->iterator as $parameter) {
-				$args[$parameter->key] = $parameter->data;
+				$args[$parameter->key] = $parameter->value;
 			}
 			$destination = $destination->destination;
 		}
