@@ -66,10 +66,8 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	{
 		if ($destination instanceof Ytnuk\Link\Entity) {
 			$component = $this;
-			$args = [];
-			foreach ($destination->parameters->iterator as $parameter) {
-				$args[$parameter->key] = $parameter->value;
-			}
+			$args = $destination->parameters->get()
+				->fetchPairs('key');
 			$destination = $destination->destination;
 		}
 
