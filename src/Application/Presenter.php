@@ -54,6 +54,17 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getFilteredParameters()
+	{
+		$parameters = $this->getParameters();
+		unset($parameters['action']);
+
+		return $parameters;
+	}
+
+	/**
 	 * @param $component
 	 * @param Ytnuk\Link\Entity|string $destination
 	 * @param array $args

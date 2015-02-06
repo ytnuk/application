@@ -21,7 +21,8 @@ final class Factory extends Nette\Application\PresenterFactory
 	/**
 	 * @param string $name
 	 *
-	 * @return Ytnuk\Application\Presenter
+	 * @return Nette\Application\IPresenter
+	 * @throws Nette\Application\InvalidPresenterException
 	 */
 	public function createPresenter($name)
 	{

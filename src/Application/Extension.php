@@ -38,6 +38,7 @@ final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension i
 
 	public function beforeCompile()
 	{
+		parent::beforeCompile();
 		$builder = $this->getContainerBuilder();
 		$components = [];
 		foreach ($builder->findByTag(self::COMPONENT_TAG) as $name => $component) {

@@ -8,6 +8,7 @@ use Ytnuk;
 /**
  * Class Control
  *
+ * @property-read Presenter $presenter
  * @package Ytnuk\Application
  */
 abstract class Control extends Nette\Application\UI\Control
