@@ -58,7 +58,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function getFilteredParameters()
 	{
-		$parameters = $this->getParameters();
+		$parameters = $this->request->getParameters();
 		unset($parameters['action']);
 
 		return $parameters;
