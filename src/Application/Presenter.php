@@ -54,17 +54,6 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getFilteredParameters()
-	{
-		$parameters = $this->request->getParameters();
-		unset($parameters['action']);
-
-		return $parameters;
-	}
-
-	/**
 	 * @param $component
 	 * @param Ytnuk\Link\Entity|string $destination
 	 * @param array $args
@@ -77,8 +66,8 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	{
 		if ($destination instanceof Ytnuk\Link\Entity) {
 			$component = $this;
-			$args = $destination->parameters->get()
-				->fetchPairs('key');
+			$collection = $destination->parameters->get();
+			$args += $collection->fetchPairs('key', 'value');
 			$destination = $destination->destination;
 		}
 

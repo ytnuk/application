@@ -25,6 +25,9 @@ final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension i
 				'errorPresenter' => NULL,
 				'mapping' => [
 					'*' => 'Ytnuk\*\*'
+				],
+				'scanDirs' => [
+					'%appDir%/../vendor'
 				]
 			],
 			Nette\Bridges\HttpDI\SessionExtension::class => [
