@@ -23,7 +23,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function formatTemplateFiles()
 	{
-		return $this[Ytnuk\Templating\Template::class][$this->view];
+		return $this[Ytnuk\Templating\Template::class][$this->getView()];
 	}
 
 	/**
@@ -78,7 +78,9 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	{
 		parent::beforeRender();
 		$this->snippetMode = $this->isAjax();
-		if ($this->snippetMode && ! $this->request->isMethod('POST') && ! $this->getParameter('do')) {
+		if ($this->snippetMode && ! $this->getRequest()
+				->isMethod('POST') && ! $this->getParameter('do')
+		) {
 			$this->redrawControl();
 		}
 	}
@@ -92,7 +94,8 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	{
 		$component = parent::createComponent($name);
 		if ( ! $component && isset($this->components[$name])) {
-			$component = $this->context->getByType($this->components[$name]);
+			$component = $this->getContext()
+				->getByType($this->components[$name]);
 			if (method_exists($component, 'create')) {
 				$component = call_user_func([
 					$component,

@@ -44,7 +44,9 @@ abstract class Control extends Nette\Application\UI\Control
 	{
 		if (Nette\Utils\Strings::startsWith($name, $this->render)) {
 			$views = [];
-			if ($this->presenter->isAjax()) {
+			if ($this->getPresenter()
+				->isAjax()
+			) {
 				$views += array_filter(array_diff_key($this->getViews(), $this->rendered), function ($ajax) {
 					return $ajax;
 				});
@@ -97,7 +99,8 @@ abstract class Control extends Nette\Application\UI\Control
 	 */
 	protected function createComponent($name)
 	{
-		return parent::createComponent($name) ? : $this->presenter->createComponent($name);
+		return parent::createComponent($name) ? : $this->getPresenter()
+			->createComponent($name);
 	}
 
 	/**
@@ -109,7 +112,8 @@ abstract class Control extends Nette\Application\UI\Control
 		$this->cycle('startup' . ucfirst($this->view), func_get_args(), TRUE);
 		$this->cycle('beforeRender');
 		$this->cycle($this->render . ucfirst($this->view), func_get_args());
-		$this->template->render($template = $this[Ytnuk\Templating\Template::class][$this->view]);
+		$this->getTemplate()
+			->render($template = $this[Ytnuk\Templating\Template::class][$this->view]);
 
 		return $template;
 	}
@@ -133,5 +137,13 @@ abstract class Control extends Nette\Application\UI\Control
 		if ($once) {
 			$this->cycle[$method] = TRUE;
 		}
+	}
+
+	/**
+	 * @return Nette\Bridges\ApplicationLatte\Template
+	 */
+	public function getTemplate()
+	{
+		return parent::getTemplate();
 	}
 }
