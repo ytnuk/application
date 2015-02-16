@@ -44,14 +44,14 @@ abstract class Control extends Nette\Application\UI\Control
 	{
 		if (Nette\Utils\Strings::startsWith($name, $this->render)) {
 			$views = [];
-			if ($this->getPresenter()
-				->isAjax()
-			) {
-				$views += array_filter(array_diff_key($this->getViews(), $this->rendered), function ($ajax) {
+			if ($name === $this->render) {
+				//TODO: is it possible to disable snippets including in nette?
+				//TODO: or some way to check that this is invoked by snippets renderer and not from template
+				$views += $this->getPresenter()->isAjax() ? array_filter(array_diff_key($this->getViews(), $this->rendered), function ($ajax) {
 					return $ajax;
-				});
-			} elseif ($name === $this->render) {
-				$views[$this->view] = TRUE;
+				}) : [
+					$this->view => TRUE
+				];
 			} else {
 				$views[lcfirst(Nette\Utils\Strings::substring($name, strlen($this->render)))] = TRUE;
 			}
@@ -99,8 +99,7 @@ abstract class Control extends Nette\Application\UI\Control
 	 */
 	protected function createComponent($name)
 	{
-		return parent::createComponent($name) ? : $this->getPresenter()
-			->createComponent($name);
+		return parent::createComponent($name) ? : $this->getPresenter()->createComponent($name);
 	}
 
 	/**
@@ -112,8 +111,7 @@ abstract class Control extends Nette\Application\UI\Control
 		$this->cycle('startup' . ucfirst($this->view), func_get_args(), TRUE);
 		$this->cycle('beforeRender');
 		$this->cycle($this->render . ucfirst($this->view), func_get_args());
-		$this->getTemplate()
-			->render($template = $this[Ytnuk\Templating\Template::class][$this->view]);
+		$this->getTemplate()->render($template = $this[Ytnuk\Templating\Template::class][$this->view]);
 
 		return $template;
 	}

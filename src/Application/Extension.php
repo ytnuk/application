@@ -48,8 +48,6 @@ final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension i
 			$definition = $builder->getDefinition($name);
 			$components[str_replace('_', NULL, lcfirst($name))] = $definition->getImplement() ? : $definition->getClass();
 		}
-		$builder->getDefinition('nette.presenterFactory')
-			->setFactory(Presenter\Factory::class)
-			->addSetup('setComponents', [$components]);
+		$builder->getDefinition('nette.presenterFactory')->setFactory(Presenter\Factory::class)->addSetup('setComponents', [$components]);
 	}
 }
