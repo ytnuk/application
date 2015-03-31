@@ -40,7 +40,7 @@ abstract class Control extends Nette\Application\UI\Control
 	 *
 	 * @return mixed
 	 */
-	public function __call($name, $arguments = [])
+	public function __call($name, $arguments = []) //TODO: needs massive refactor, every template should be separate component, if possible generated snippets
 	{
 		if (Nette\Utils\Strings::startsWith($name, $this->render)) {
 			$views = [];
@@ -137,11 +137,4 @@ abstract class Control extends Nette\Application\UI\Control
 		}
 	}
 
-	/**
-	 * @return Nette\Bridges\ApplicationLatte\Template
-	 */
-	public function getTemplate()
-	{
-		return parent::getTemplate();
-	}
 }
