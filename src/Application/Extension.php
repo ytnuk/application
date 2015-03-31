@@ -10,7 +10,7 @@ use Ytnuk;
  *
  * @package Ytnuk\Application
  */
-final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension implements Ytnuk\Config\Provider
+final class Extension extends Nette\DI\CompilerExtension implements Ytnuk\Config\Provider
 {
 
 	const COMPONENT_TAG = 'application.component';
@@ -21,7 +21,7 @@ final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension i
 	public function getConfigResources()
 	{
 		return [
-			parent::class => [
+			Nette\Bridges\ApplicationDI\ApplicationExtension::class => [
 				'errorPresenter' => NULL,
 				'mapping' => [
 					'*' => 'Ytnuk\*\*'
@@ -41,13 +41,14 @@ final class Extension extends Nette\Bridges\ApplicationDI\ApplicationExtension i
 
 	public function beforeCompile()
 	{
-		parent::beforeCompile();
 		$builder = $this->getContainerBuilder();
 		$components = [];
 		foreach ($builder->findByTag(self::COMPONENT_TAG) as $name => $component) {
 			$definition = $builder->getDefinition($name);
 			$components[str_replace('_', NULL, lcfirst($name))] = $definition->getImplement() ? : $definition->getClass();
 		}
-		$builder->getDefinition('nette.presenterFactory')->setFactory(Presenter\Factory::class)->addSetup('setComponents', [$components]);
+		$presenterFactory = $builder->getDefinition('application.presenterFactory');
+		$presenterFactory->getFactory()->setEntity(Presenter\Factory::class);
+		$presenterFactory->addSetup('setComponents', [$components]);
 	}
 }

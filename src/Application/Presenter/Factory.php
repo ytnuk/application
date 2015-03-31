@@ -16,7 +16,7 @@ final class Factory extends Nette\Application\PresenterFactory
 	/**
 	 * @var array
 	 */
-	private $components;
+	private $components = [];
 
 	/**
 	 * @param string $name
