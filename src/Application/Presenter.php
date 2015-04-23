@@ -78,8 +78,13 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	{
 		parent::beforeRender();
 		$this->snippetMode = $this->isAjax();
-		if ($this->snippetMode && ! $this->getRequest()->isMethod('POST') && ! $this->getParameter('do')) {
-			$this->redrawControl();
+		if ($this->snippetMode) {
+			if ( ! $this->getRequest()->isMethod('POST') && ! $this->getParameter('do')) {
+				$this->redrawControl();
+			} else {
+				Nette\Bridges\ApplicationLatte\UIMacros::renderSnippets($this, new \stdClass, []);
+				$this->terminate();
+			}
 		}
 	}
 

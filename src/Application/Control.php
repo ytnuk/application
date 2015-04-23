@@ -8,7 +8,6 @@ use Ytnuk;
 /**
  * Class Control
  *
- * @property-read Presenter $presenter
  * @package Ytnuk\Application
  */
 abstract class Control extends Nette\Application\UI\Control
@@ -35,37 +34,57 @@ abstract class Control extends Nette\Application\UI\Control
 	private $render = 'render';
 
 	/**
+	 * @var bool
+	 */
+	private $invalid = FALSE;
+
+	/**
 	 * @param string $name
 	 * @param array $arguments
 	 *
 	 * @return mixed
 	 */
-	public function __call($name, $arguments = []) //TODO: needs massive refactor, every template should be separate component, if possible generated snippets
+	public function __call($name, $arguments = [])
 	{
 		if (Nette\Utils\Strings::startsWith($name, $this->render)) {
-			$views = [];
-			if ($name === $this->render) {
-				//TODO: is it possible to disable snippets including in nette?
-				//TODO: or some way to check that this is invoked by snippets renderer and not from template
-				$views += $this->getPresenter()->isAjax() ? array_filter(array_diff_key($this->getViews(), $this->rendered), function ($ajax) {
-					return $ajax;
-				}) : [
-					$this->view => TRUE
-				];
-			} else {
-				$views[lcfirst(Nette\Utils\Strings::substring($name, strlen($this->render)))] = TRUE;
+			if ($this->presenter->isAjax() && ! $this->invalid) { //TODO: maybe invalid as array allowing redrawing of only some templates
+				Nette\Bridges\ApplicationLatte\UIMacros::renderSnippets($this, new \stdClass, []);
+
+				return NULL;
 			}
+			$name = lcfirst(Nette\Utils\Strings::substring($name, strlen($this->render))) ? : $this->view;
 			$default = $this->view;
-			foreach ($views as $view => $ajax) {
+			$defaultSnippetMode = $this->snippetMode;
+			unset($this->rendered[$name]);
+			foreach (array_diff_key($this->getViews(), $this->rendered) as $view => $snippetMode) {
 				$this->view = $view;
-				$this->rendered[$view] = call_user_func_array([
+				if ($view === $name) {
+					$this->snippetMode = $defaultSnippetMode && ! $snippetMode;
+				} else {
+					$this->snippetMode = ! $snippetMode;
+				}
+				ob_start();
+				call_user_func_array([
 					$this,
 					$this->render
 				], $arguments);
+				$output = ob_get_clean();
+				if ($snippetMode && $snippetId = $this->getSnippetId()) {
+					if ( ! $this->snippetMode) {
+						$output = '<div id="' . $snippetId . '">' . $output . '</div>';
+					}
+					if ($this->getPresenter()->isAjax()) {
+						$this->getPresenter()->getPayload()->snippets[$snippetId] = $output;
+					}
+				}
+				$this->rendered[$view] = $output;
 			}
 			$this->view = $default;
+			if ( ! $this->snippetMode = $defaultSnippetMode) {
+				echo $this->rendered[$name];
+			}
 
-			return $this->rendered;
+			return $this->rendered[$name];
 		}
 
 		return parent::__call($name, $arguments);
@@ -77,8 +96,24 @@ abstract class Control extends Nette\Application\UI\Control
 	protected function getViews()
 	{
 		return [
-			$this->view => TRUE
+			$this->view => TRUE,
 		];
+	}
+
+	/**
+	 * @param string|NULL $name
+	 *
+	 * @return string
+	 */
+	public function getSnippetId($name = NULL)
+	{
+		$id = parent::getSnippetId($name);
+		$uniqueId = $this->getUniqueId();
+
+		return str_replace($uniqueId, implode('-', [
+			$uniqueId,
+			$this->view
+		]), $id);
 	}
 
 	/**
@@ -90,6 +125,12 @@ abstract class Control extends Nette\Application\UI\Control
 	public function getComponent($name, $need = TRUE)
 	{
 		return parent::getComponent(str_replace('\\', NULL, lcfirst($name)), $need);
+	}
+
+	public function redrawControl($snippet = NULL, $redraw = TRUE)
+	{
+		$this->invalid = TRUE;
+		parent::redrawControl($snippet, $redraw);
 	}
 
 	/**
@@ -111,9 +152,7 @@ abstract class Control extends Nette\Application\UI\Control
 		$this->cycle('startup' . ucfirst($this->view), func_get_args(), TRUE);
 		$this->cycle('beforeRender');
 		$this->cycle($this->render . ucfirst($this->view), func_get_args());
-		$this->getTemplate()->render($template = $this[Ytnuk\Templating\Template::class][$this->view]);
-
-		return $template;
+		$this->getTemplate()->render($this[Ytnuk\Templating\Template::class][$this->view]);
 	}
 
 	/**
@@ -136,5 +175,4 @@ abstract class Control extends Nette\Application\UI\Control
 			$this->cycle[$method] = TRUE;
 		}
 	}
-
 }
