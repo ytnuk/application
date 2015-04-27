@@ -34,9 +34,14 @@ abstract class Control extends Nette\Application\UI\Control
 	private $render = 'render';
 
 	/**
-	 * @var bool
+	 * @var array
 	 */
-	private $invalid = FALSE;
+	private $invalidViews = [];
+
+	/**
+	 * @var array
+	 */
+	private $views = [];
 
 	/**
 	 * @param string $name
@@ -47,57 +52,49 @@ abstract class Control extends Nette\Application\UI\Control
 	public function __call($name, $arguments = [])
 	{
 		if (Nette\Utils\Strings::startsWith($name, $this->render)) {
-			if ($this->presenter->isAjax() && ! $this->invalid) { //TODO: maybe invalid as array allowing redrawing of only some templates
-				Nette\Bridges\ApplicationLatte\UIMacros::renderSnippets($this, new \stdClass, []);
-
-				return NULL;
-			}
 			$name = lcfirst(Nette\Utils\Strings::substring($name, strlen($this->render))) ? : $this->view;
 			$default = $this->view;
-			$defaultSnippetMode = $this->snippetMode;
-			unset($this->rendered[$name]);
-			foreach (array_diff_key($this->getViews(), $this->rendered) as $view => $snippetMode) {
+			$views = $this->views;
+			if ($defaultSnippetMode = $this->snippetMode) {
+				$views = array_intersect_key($views, $this->invalidViews);
+			}
+			$isAjax = $this->getPresenter()->isAjax();
+			$payLoad = $this->getPresenter()->getPayload();
+			foreach (array_diff_key($views, $this->rendered) as $view => $snippetMode) {
 				$this->view = $view;
-				if ($view === $name) {
-					$this->snippetMode = $defaultSnippetMode && ! $snippetMode;
-				} else {
-					$this->snippetMode = ! $snippetMode;
-				}
+				$this->snippetMode = $isAjax && ! $snippetMode;
 				ob_start();
 				call_user_func_array([
 					$this,
 					$this->render
 				], $arguments);
 				$output = ob_get_clean();
-				if ($snippetMode && $snippetId = $this->getSnippetId()) {
-					if ( ! $this->snippetMode) {
-						$output = '<div id="' . $snippetId . '">' . $output . '</div>';
-					}
-					if ($this->getPresenter()->isAjax()) {
-						$this->getPresenter()->getPayload()->snippets[$snippetId] = $output;
-					}
+				if ($snippetMode && $isAjax && $snippetId = $this->getSnippetId()) {
+					$payLoad->snippets[$snippetId] = $output;
 				}
 				$this->rendered[$view] = $output;
 			}
 			$this->view = $default;
-			if ( ! $this->snippetMode = $defaultSnippetMode) {
-				echo $this->rendered[$name];
-			}
+			if ($this->snippetMode = $defaultSnippetMode) {
+				return Nette\Bridges\ApplicationLatte\UIMacros::renderSnippets($this, new \stdClass, []);
+			} elseif (isset($this->rendered[$name])) {
+				$this->view = $name;
+				$output = $this->rendered[$name];
+				if ($this->views[$this->view] && $snippetId = $this->getSnippetId()) {
+					$snippet = Nette\Utils\Html::el('div', ['id' => $snippetId]);
+					//if ( ! isset($this->getPresenter()->getPayload()->snippets[$snippetId])) { //TODO: need to update snippets from top level ones
+					$snippet->setHtml($output);
+					//}
+					$output = $snippet->render();
+				}
+				//TODO: set $this->view to default value
+				echo $output;
 
-			return $this->rendered[$name];
+				return $output;
+			}
 		}
 
 		return parent::__call($name, $arguments);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getViews()
-	{
-		return [
-			$this->view => TRUE,
-		];
 	}
 
 	/**
@@ -107,13 +104,12 @@ abstract class Control extends Nette\Application\UI\Control
 	 */
 	public function getSnippetId($name = NULL)
 	{
-		$id = parent::getSnippetId($name);
 		$uniqueId = $this->getUniqueId();
 
 		return str_replace($uniqueId, implode('-', [
 			$uniqueId,
 			$this->view
-		]), $id);
+		]), parent::getSnippetId($name));
 	}
 
 	/**
@@ -129,8 +125,34 @@ abstract class Control extends Nette\Application\UI\Control
 
 	public function redrawControl($snippet = NULL, $redraw = TRUE)
 	{
-		$this->invalid = TRUE;
+		if ($redraw) {
+			if (isset($this->views[$snippet])) {
+				$this->invalidViews[$snippet] = TRUE;
+			} elseif ($snippet === NULL) {
+				$this->invalidViews = $this->views;
+			}
+		} elseif ($snippet === NULL) {
+			$this->invalidViews = [];
+		} else {
+			unset($this->invalidViews[$snippet]);
+		}
 		parent::redrawControl($snippet, $redraw);
+	}
+
+	protected function attached($presenter)
+	{
+		parent::attached($presenter);
+		$this->views = $this->getViews();
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getViews()
+	{
+		return [
+			$this->view => TRUE,
+		];
 	}
 
 	/**
