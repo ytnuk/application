@@ -107,4 +107,14 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 		return $component;
 	}
+
+	public function sendPayload()
+	{
+		if (isset($this->payload->snippets)) {
+			uksort($this->payload->snippets, function ($a, $b) {
+				return substr_count($a, '-') > substr_count($b, '-');
+			});
+		}
+		parent::sendPayload();
+	}
 }

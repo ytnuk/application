@@ -53,48 +53,75 @@ abstract class Control extends Nette\Application\UI\Control
 	{
 		if (Nette\Utils\Strings::startsWith($name, $this->render)) {
 			$name = lcfirst(Nette\Utils\Strings::substring($name, strlen($this->render))) ? : $this->view;
-			$default = $this->view;
-			$views = $this->views;
-			if ($defaultSnippetMode = $this->snippetMode) {
-				$views = array_intersect_key($views, $this->invalidViews);
-			}
 			$isAjax = $this->getPresenter()->isAjax();
-			$payLoad = $this->getPresenter()->getPayload();
+			$payload = $this->getPresenter()->getPayload();
+			$defaultView = $this->view;
+			$defaultSnippetMode = $this->snippetMode;
+			$views = $this->views;
+			if ($this->snippetMode) {
+				$views = array_intersect_key($views, $this->invalidViews);
+			} elseif ( ! $isAjax) {
+				$views = array_intersect_key($views, [$name => TRUE]);
+			}
 			foreach (array_diff_key($views, $this->rendered) as $view => $snippetMode) {
 				$this->view = $view;
 				$this->snippetMode = $isAjax && ! $snippetMode;
 				ob_start();
-				call_user_func_array([
-					$this,
-					$this->render
-				], $arguments);
+				$this->render();
 				$output = ob_get_clean();
 				if ($snippetMode && $isAjax && $snippetId = $this->getSnippetId()) {
-					$payLoad->snippets[$snippetId] = $output;
+					$payload->snippets[$snippetId] = $output;
 				}
 				$this->rendered[$view] = $output;
 			}
-			$this->view = $default;
+			$this->view = $defaultView;
 			if ($this->snippetMode = $defaultSnippetMode) {
-				return Nette\Bridges\ApplicationLatte\UIMacros::renderSnippets($this, new \stdClass, []);
-			} elseif (isset($this->rendered[$name])) {
-				$this->view = $name;
-				$output = $this->rendered[$name];
+				Nette\Bridges\ApplicationLatte\UIMacros::renderSnippets($this, new \stdClass, []);
+			} elseif (isset($this->rendered[$this->view = $name])) {
+				$output = $this->rendered[$this->view];
 				if ($this->views[$this->view] && $snippetId = $this->getSnippetId()) {
 					$snippet = Nette\Utils\Html::el('div', ['id' => $snippetId]);
-					//if ( ! isset($this->getPresenter()->getPayload()->snippets[$snippetId])) { //TODO: need to update snippets from top level ones
-					$snippet->setHtml($output);
-					//}
+					if ( ! isset($payload->snippets[$snippetId])) {
+						$snippet->setHtml($output);
+					}
 					$output = $snippet->render();
 				}
-				//TODO: set $this->view to default value
 				echo $output;
-
-				return $output;
 			}
+			$this->view = $defaultView;
+
+			return NULL;
 		}
 
 		return parent::__call($name, $arguments);
+	}
+
+	private function render()
+	{
+		$this->cycle('startup', TRUE);
+		$this->cycle('before' . ucfirst($this->render));
+		$this->cycle($this->render . ucfirst($this->view));
+		$this->getTemplate()->render($this[Ytnuk\Templating\Template::class][$this->view]);
+	}
+
+	/**
+	 * @param string $method
+	 * @param bool $once
+	 */
+	private function cycle($method, $once = FALSE)
+	{
+		if ($once && isset($this->cycle[$method])) {
+			return;
+		}
+		if (method_exists($this, $method)) {
+			call_user_func([
+				$this,
+				$method
+			]);
+		}
+		if ($once) {
+			$this->cycle[$method] = TRUE;
+		}
 	}
 
 	/**
@@ -163,38 +190,5 @@ abstract class Control extends Nette\Application\UI\Control
 	protected function createComponent($name)
 	{
 		return parent::createComponent($name) ? : $this->getPresenter()->createComponent($name);
-	}
-
-	/**
-	 * @return Ytnuk\Templating\Template
-	 */
-	private function render()
-	{
-		$this->cycle('startup', [], TRUE);
-		$this->cycle('startup' . ucfirst($this->view), func_get_args(), TRUE);
-		$this->cycle('beforeRender');
-		$this->cycle($this->render . ucfirst($this->view), func_get_args());
-		$this->getTemplate()->render($this[Ytnuk\Templating\Template::class][$this->view]);
-	}
-
-	/**
-	 * @param string $method
-	 * @param array $arguments
-	 * @param bool $once
-	 */
-	private function cycle($method, array $arguments = [], $once = FALSE)
-	{
-		if ($once && isset($this->cycle[$method])) {
-			return;
-		}
-		if (method_exists($this, $method)) {
-			call_user_func_array([
-				$this,
-				$method
-			], $arguments);
-		}
-		if ($once) {
-			$this->cycle[$method] = TRUE;
-		}
 	}
 }
