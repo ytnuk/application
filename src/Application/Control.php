@@ -135,8 +135,8 @@ abstract class Control extends Nette\Application\UI\Control
 
 		return str_replace($uniqueId, implode('-', [
 			$uniqueId,
-			$this->view
-		]), parent::getSnippetId($name));
+			isset($this->views[$name]) ? $name : $this->view
+		]), parent::getSnippetId(isset($this->views[$name]) ? NULL : $name));
 	}
 
 	/**
