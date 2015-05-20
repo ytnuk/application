@@ -63,7 +63,7 @@ abstract class Control extends Nette\Application\UI\Control
 			} elseif ( ! $isAjax) {
 				$views = array_intersect_key($views, [$name => TRUE]);
 			}
-			foreach (array_diff_key($views, $this->rendered) as $view => $snippetMode) {
+			foreach (array_diff_key($views, $this->rendered) as $view => $snippetMode) { //TODO: snippet mode should be true or callback returning cache dependencies
 				$this->view = $view;
 				$this->snippetMode = $isAjax && ! $snippetMode;
 				ob_start();
