@@ -16,7 +16,7 @@ final class Extension extends Nette\DI\CompilerExtension implements Ytnuk\Config
 	const COMPONENT_TAG = 'application.component';
 
 	/**
-	 * @return array
+	 * @inheritdoc
 	 */
 	public function getConfigResources()
 	{
@@ -39,6 +39,9 @@ final class Extension extends Nette\DI\CompilerExtension implements Ytnuk\Config
 		];
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function beforeCompile()
 	{
 		$builder = $this->getContainerBuilder();

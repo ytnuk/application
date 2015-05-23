@@ -19,10 +19,7 @@ final class Factory extends Nette\Application\PresenterFactory
 	private $components = [];
 
 	/**
-	 * @param string $name
-	 *
-	 * @return Nette\Application\IPresenter
-	 * @throws Nette\Application\InvalidPresenterException
+	 * @inheritdoc
 	 */
 	public function createPresenter($name)
 	{

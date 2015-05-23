@@ -44,10 +44,7 @@ abstract class Control extends Nette\Application\UI\Control
 	private $views = [];
 
 	/**
-	 * @param string $name
-	 * @param array $arguments
-	 *
-	 * @return mixed
+	 * @inheritdoc
 	 */
 	public function __call($name, $arguments = [])
 	{
@@ -66,9 +63,7 @@ abstract class Control extends Nette\Application\UI\Control
 			foreach (array_diff_key($views, $this->rendered) as $view => $snippetMode) { //TODO: snippet mode should be true or callback returning cache dependencies
 				$this->view = $view;
 				$this->snippetMode = $isAjax && ! $snippetMode;
-				ob_start();
-				$this->render();
-				$output = ob_get_clean();
+				$output = $this->render();
 				if ($snippetMode && $isAjax && $snippetId = $this->getSnippetId()) {
 					$payload->snippets[$snippetId] = $output;
 				}
@@ -96,12 +91,17 @@ abstract class Control extends Nette\Application\UI\Control
 		return parent::__call($name, $arguments);
 	}
 
+	/**
+	 * @return string
+	 */
 	private function render()
 	{
 		$this->cycle('startup', TRUE);
 		$this->cycle('before' . ucfirst($this->render));
 		$this->cycle($this->render . ucfirst($this->view));
-		$this->getTemplate()->render($this[Ytnuk\Templating\Template::class][$this->view]);
+		$this->getTemplate()->setFile($this[Ytnuk\Templating\Template::class][$this->view]);
+
+		return (string) $this->getTemplate();
 	}
 
 	/**
@@ -125,9 +125,7 @@ abstract class Control extends Nette\Application\UI\Control
 	}
 
 	/**
-	 * @param string|NULL $name
-	 *
-	 * @return string
+	 * @inheritdoc
 	 */
 	public function getSnippetId($name = NULL)
 	{
@@ -140,16 +138,16 @@ abstract class Control extends Nette\Application\UI\Control
 	}
 
 	/**
-	 * @param $name
-	 * @param bool $need
-	 *
-	 * @return Nette\ComponentModel\IComponent|NULL
+	 * @inheritdoc
 	 */
 	public function getComponent($name, $need = TRUE)
 	{
 		return parent::getComponent(str_replace('\\', NULL, lcfirst($name)), $need);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	public function redrawControl($snippet = NULL, $redraw = TRUE)
 	{
 		if ($redraw) {
@@ -166,6 +164,9 @@ abstract class Control extends Nette\Application\UI\Control
 		parent::redrawControl($snippet, $redraw);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	protected function attached($presenter)
 	{
 		parent::attached($presenter);
@@ -183,9 +184,7 @@ abstract class Control extends Nette\Application\UI\Control
 	}
 
 	/**
-	 * @param string $name
-	 *
-	 * @return self
+	 * @inheritdoc
 	 */
 	protected function createComponent($name)
 	{

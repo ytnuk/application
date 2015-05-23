@@ -43,10 +43,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	}
 
 	/**
-	 * @param $name
-	 * @param bool $need
-	 *
-	 * @return Nette\ComponentModel\IComponent|NULL
+	 * @inheritdoc
 	 */
 	public function getComponent($name, $need = TRUE)
 	{
@@ -54,13 +51,20 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	}
 
 	/**
-	 * @param $component
-	 * @param Ytnuk\Link\Entity|string $destination
-	 * @param array $args
-	 * @param $mode
-	 *
-	 * @return string
-	 * @throws Nette\Application\UI\InvalidLinkException
+	 * @inheritdoc
+	 */
+	public function sendPayload()
+	{
+		if (isset($this->payload->snippets)) {
+			uksort($this->payload->snippets, function ($a, $b) {
+				return substr_count($a, '-') > substr_count($b, '-');
+			});
+		}
+		parent::sendPayload();
+	}
+
+	/**
+	 * @inheritdoc
 	 */
 	protected function createRequest($component, $destination, array $args, $mode)
 	{
@@ -69,11 +73,18 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 			$collection = $destination->parameters->get();
 			$args += $collection->fetchPairs('key', 'value');
 			$destination = $destination->destination;
+			if (isset($args['absolute'])) {
+				$destination = ($args['absolute'] ? '//' : NULL) . ltrim($destination, '/');
+				unset($args['absolute']);
+			}
 		}
 
 		return parent::createRequest($component, $destination, $args, $mode);
 	}
 
+	/**
+	 * @inheritdoc
+	 */
 	protected function beforeRender()
 	{
 		parent::beforeRender();
@@ -89,9 +100,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	}
 
 	/**
-	 * @param string $name
-	 *
-	 * @return Control
+	 * @inheritdoc
 	 */
 	protected function createComponent($name)
 	{
@@ -107,15 +116,5 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 		}
 
 		return $component;
-	}
-
-	public function sendPayload()
-	{
-		if (isset($this->payload->snippets)) {
-			uksort($this->payload->snippets, function ($a, $b) {
-				return substr_count($a, '-') > substr_count($b, '-');
-			});
-		}
-		parent::sendPayload();
 	}
 }
