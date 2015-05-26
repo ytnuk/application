@@ -44,6 +44,11 @@ abstract class Control extends Nette\Application\UI\Control
 	private $views = [];
 
 	/**
+	 * @var Nette\Caching\Cache
+	 */
+	private $cache;
+
+	/**
 	 * @inheritdoc
 	 */
 	public function __call($name, $arguments = [])
@@ -60,10 +65,28 @@ abstract class Control extends Nette\Application\UI\Control
 			} elseif ( ! $isAjax) {
 				$views = array_intersect_key($views, [$name => TRUE]);
 			}
-			foreach (array_diff_key($views, $this->rendered) as $view => $snippetMode) { //TODO: snippet mode should be true or callback returning cache dependencies
+			foreach (array_diff_key($views, $this->rendered) as $view => $snippetMode) {
 				$this->view = $view;
 				$this->snippetMode = $isAjax && ! $snippetMode;
-				$output = $this->render();
+				if ($this->cache && is_callable($snippetMode)) {
+					$dependencies = [];
+					$key = call_user_func_array($snippetMode, [& $dependencies]);
+					$key[] = $this->view;
+					$key[] = $this->snippetMode;
+					$output = $this->cache->load($key, function (& $dp) use (&$dependencies) {
+						if ( ! isset($dependencies[Nette\Caching\Cache::TAGS])) {
+							$dependencies[Nette\Caching\Cache::TAGS] = [];
+						}
+						$dependencies[Nette\Caching\Cache::TAGS][] = $this->cache->getNamespace();
+						$dependencies[Nette\Caching\Cache::TAGS][] = $this->getUniqueId();
+						$dependencies[Nette\Caching\Cache::TAGS][] = $this->getSnippetId();
+						$dp = $dependencies;
+
+						return $this->render();
+					});
+				} else {
+					$output = $this->render();
+				}
 				if ($snippetMode && $isAjax && $snippetId = $this->getSnippetId()) {
 					$payload->snippets[$snippetId] = $output;
 				}
@@ -89,6 +112,19 @@ abstract class Control extends Nette\Application\UI\Control
 		}
 
 		return parent::__call($name, $arguments);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getSnippetId($name = NULL)
+	{
+		$uniqueId = $this->getUniqueId();
+
+		return str_replace($uniqueId, implode('-', [
+			$uniqueId,
+			isset($this->views[$name]) ? $name : $this->view
+		]), parent::getSnippetId(isset($this->views[$name]) ? NULL : $name));
 	}
 
 	/**
@@ -127,19 +163,6 @@ abstract class Control extends Nette\Application\UI\Control
 	/**
 	 * @inheritdoc
 	 */
-	public function getSnippetId($name = NULL)
-	{
-		$uniqueId = $this->getUniqueId();
-
-		return str_replace($uniqueId, implode('-', [
-			$uniqueId,
-			isset($this->views[$name]) ? $name : $this->view
-		]), parent::getSnippetId(isset($this->views[$name]) ? NULL : $name));
-	}
-
-	/**
-	 * @inheritdoc
-	 */
 	public function getComponent($name, $need = TRUE)
 	{
 		return parent::getComponent(str_replace('\\', NULL, lcfirst($name)), $need);
@@ -162,6 +185,14 @@ abstract class Control extends Nette\Application\UI\Control
 			unset($this->invalidViews[$snippet]);
 		}
 		parent::redrawControl($snippet, $redraw);
+	}
+
+	/**
+	 * @param Nette\Caching\IStorage $storage
+	 */
+	public function setCacheStorage(Nette\Caching\IStorage $storage)
+	{
+		$this->cache = new Nette\Caching\Cache($storage, $this->getReflection()->getName());
 	}
 
 	/**
