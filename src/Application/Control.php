@@ -69,13 +69,26 @@ abstract class Control extends Nette\Application\UI\Control
 				$this->view = $view;
 				$this->snippetMode = $isAjax && ! $snippetMode;
 				if ($this->cache && is_callable($snippetMode)) {
-					$dependencies = [];
-					$key = call_user_func_array($snippetMode, [& $dependencies]);
-					$key[] = $this->view;
-					$key[] = $this->snippetMode;
-					$output = $this->cache->load($key, function (& $dp) use (&$dependencies) {
-						if ( ! isset($dependencies[Nette\Caching\Cache::TAGS])) {
-							$dependencies[Nette\Caching\Cache::TAGS] = [];
+					$dependencies = [
+						Nette\Caching\Cache::TAGS => [],
+					];
+					$key = [
+						$this->view,
+						$this->snippetMode,
+						array_intersect_key($this->getPresenter()->getParameters(), array_flip($this->getPresenter()->getPersistentParams())),
+					];
+					$providers = [];
+					foreach (call_user_func_array($snippetMode, [& $dependencies]) as $dependency) {
+						if ($dependency instanceof Ytnuk\Cache\Provider) {
+							$providers[] = $dependency;
+							$key[] = $dependency->getCacheKey();
+						} else {
+							$key[] = $dependency;
+						}
+					}
+					$output = $this->cache->load($key, function (& $dp) use (&$dependencies, $providers) {
+						foreach ($providers as $provider) {
+							$dependencies[Nette\Caching\Cache::TAGS] = array_merge($dependencies[Nette\Caching\Cache::TAGS], $provider->getCacheTags());
 						}
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->cache->getNamespace();
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->getUniqueId();
