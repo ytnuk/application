@@ -66,11 +66,15 @@ abstract class Control extends Nette\Application\UI\Control
 				$views = array_intersect_key($views, [$name => TRUE]);
 			}
 			foreach (array_diff_key($views, $this->rendered) as $view => $snippetMode) {
+				//TODO: when not ajax, needs separate rendering of subcomponents, same as when using Payload
 				$this->view = $view;
 				$this->snippetMode = $isAjax && ! $snippetMode;
 				if ($this->cache && is_callable($snippetMode)) {
 					$dependencies = [
 						Nette\Caching\Cache::TAGS => [],
+						Nette\Caching\Cache::FILES => [],
+						//TODO: cache keys of nested components (in case of separate rendering of subcomponents, this is not needed...)
+						Nette\Caching\Cache::ITEMS => []
 					];
 					$key = [
 						$this->view,
@@ -93,9 +97,11 @@ abstract class Control extends Nette\Application\UI\Control
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->cache->getNamespace();
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->getUniqueId();
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->getSnippetId();
+						$result = $this->render();
+						$dependencies[Nette\Caching\Cache::FILES][] = $this->getTemplate()->getFile();
 						$dp = $dependencies;
 
-						return $this->render();
+						return $result;
 					});
 				} else {
 					$output = $this->render();

@@ -31,7 +31,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function formatLayoutTemplateFiles()
 	{
-		return $this[Ytnuk\Templating\Template::class]['layout'];
+		return $this[Ytnuk\Templating\Template::class][$this->getLayout() ? : 'layout']->disableRewind();
 	}
 
 	/**
