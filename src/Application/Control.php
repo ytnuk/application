@@ -14,6 +14,16 @@ abstract class Control extends Nette\Application\UI\Control
 {
 
 	/**
+	 * @var bool
+	 */
+	public $rendering = FALSE;
+
+	/**
+	 * @var array
+	 */
+	private $related = [];
+
+	/**
 	 * @var string
 	 */
 	private $view = 'view';
@@ -54,6 +64,7 @@ abstract class Control extends Nette\Application\UI\Control
 	public function __call($name, $arguments = [])
 	{
 		if (Nette\Utils\Strings::startsWith($name, $this->render)) {
+			$this->rendering = TRUE;
 			$name = lcfirst(Nette\Utils\Strings::substring($name, strlen($this->render))) ? : $this->view;
 			$isAjax = $this->getPresenter()->isAjax();
 			$payload = $this->getPresenter()->getPayload();
@@ -66,19 +77,15 @@ abstract class Control extends Nette\Application\UI\Control
 				$views = array_intersect_key($views, [$name => TRUE]);
 			}
 			foreach (array_diff_key($views, $this->rendered) as $view => $snippetMode) {
-				//TODO: when not ajax, needs separate rendering of subcomponents, same as when using Payload
 				$this->view = $view;
 				$this->snippetMode = $isAjax && ! $snippetMode;
 				if ($this->cache && is_callable($snippetMode)) {
 					$dependencies = [
 						Nette\Caching\Cache::TAGS => [],
-						Nette\Caching\Cache::FILES => [],
-						//TODO: cache keys of nested components (in case of separate rendering of subcomponents, this is not needed...)
-						Nette\Caching\Cache::ITEMS => []
+						Nette\Caching\Cache::FILES => []
 					];
 					$key = [
 						$this->view,
-						$this->snippetMode,
 						array_intersect_key($this->getPresenter()->getParameters(), array_flip($this->getPresenter()->getPersistentParams())),
 					];
 					$providers = [];
@@ -90,44 +97,75 @@ abstract class Control extends Nette\Application\UI\Control
 							$key[] = $dependency;
 						}
 					}
-					$output = $this->cache->load($key, function (& $dp) use (&$dependencies, $providers) {
+					list($output, $this->related) = $this->cache->load($key, function (& $dp) use (&$dependencies, $providers) {
 						foreach ($providers as $provider) {
 							$dependencies[Nette\Caching\Cache::TAGS] = array_merge($dependencies[Nette\Caching\Cache::TAGS], $provider->getCacheTags());
 						}
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->cache->getNamespace();
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->getUniqueId();
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->getSnippetId();
-						$result = $this->render();
+						$output = $this->render();
 						$dependencies[Nette\Caching\Cache::FILES][] = $this->getTemplate()->getFile();
 						$dp = $dependencies;
 
-						return $result;
+						return [
+							$output,
+							$this->related,
+						];
 					});
 				} else {
 					$output = $this->render();
 				}
-				if ($snippetMode && $isAjax && $snippetId = $this->getSnippetId()) {
-					$payload->snippets[$snippetId] = $output;
+				if ($snippetMode && $isAjax) {
+					$payload->snippets[$this->getSnippetId()] = $output;
+				}
+				if ($control = $this->lookupRendering()) {
+					$control->setRelated($this, $this->view);
 				}
 				$this->rendered[$view] = $output;
 			}
 			$this->view = $defaultView;
+			$output = NULL;
 			if ($this->snippetMode = $defaultSnippetMode) {
 				Nette\Bridges\ApplicationLatte\UIMacros::renderSnippets($this, new \stdClass, []);
 			} elseif (isset($this->rendered[$this->view = $name])) {
 				$output = $this->rendered[$this->view];
-				if ($this->views[$this->view] && $snippetId = $this->getSnippetId()) {
-					$snippet = Nette\Utils\Html::el('div', ['id' => $snippetId]);
-					if ( ! isset($payload->snippets[$snippetId])) {
-						$snippet->setHtml($output);
+				if ( ! $isAjax) {
+					foreach ($this->related[$this->view] as $relatedName => $relatedViews) {
+						foreach ($relatedViews as $relatedView => $relatedSnippetId) {
+							$relatedSnippet = Nette\Utils\Html::el('div', ['id' => $relatedSnippetId]);
+							if (strpos($output, (string) $relatedSnippet) !== FALSE) {
+								$output = str_replace((string) $relatedSnippet, $relatedSnippet->setHtml(call_user_func([
+									$this->getComponent($relatedName),
+									$this->render . ucfirst($relatedView)
+								], TRUE)), $output);
+							}
+						}
 					}
-					$output = $snippet->render();
 				}
-				echo $output;
+				if ( ! $arguments) {
+					if ($this->views[$this->view] && $snippetId = $this->getSnippetId()) {
+						$snippet = Nette\Utils\Html::el('div', ['id' => $snippetId]);
+						if ($isAjax && $this->related[$this->view]) {
+							foreach ($this->related[$this->view] as $subName => $subViews) {
+								$this[$subName]->redrawControl();
+							}
+							$snippetMode = $this->snippetMode;
+							Nette\Bridges\ApplicationLatte\UIMacros::renderSnippets($this, new \stdClass, []);
+							$this->snippetMode = $snippetMode;
+						}
+						if (($isAjax && ! isset($payload->snippets[$snippetId])) || ( ! $isAjax && ! $this->lookupRendering())) {
+							$snippet->setHtml($output);
+						}
+						$output = $snippet->render();
+					}
+					echo $output;
+				}
+				$this->view = $defaultView;
 			}
-			$this->view = $defaultView;
+			$this->rendering = FALSE;
 
-			return NULL;
+			return $output;
 		}
 
 		return parent::__call($name, $arguments);
@@ -180,6 +218,30 @@ abstract class Control extends Nette\Application\UI\Control
 	}
 
 	/**
+	 * @return self|NULL
+	 */
+	public function lookupRendering()
+	{
+		$control = $this;
+		while ($control = $control->lookup(self::class, FALSE)) {
+			if ($control->rendering) {
+				return $control;
+			}
+		}
+
+		return NULL;
+	}
+
+	/**
+	 * @param Control $control
+	 * @param string $view
+	 */
+	public function setRelated(self $control, $view)
+	{
+		$this->related[$this->view][substr($control->getUniqueId(), strlen($this->getUniqueId()) + 1)][$view] = $control->getSnippetId();
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function getComponent($name, $need = TRUE)
@@ -221,6 +283,7 @@ abstract class Control extends Nette\Application\UI\Control
 	{
 		parent::attached($presenter);
 		$this->views = $this->getViews();
+		$this->related = array_fill_keys(array_keys($this->views), []);
 	}
 
 	/**
