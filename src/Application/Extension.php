@@ -36,6 +36,13 @@ final class Extension extends Nette\DI\CompilerExtension implements Ytnuk\Config
 			Nette\DI\Extensions\DIExtension::class => [
 				'debugger' => TRUE,
 			],
+			Nette\DI\Extensions\DecoratorExtension::class => [
+				Control::class => [
+					'setup' => [
+						'setCacheStorage'
+					]
+				]
+			]
 		];
 	}
 
