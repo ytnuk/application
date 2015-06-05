@@ -192,7 +192,7 @@ abstract class Control extends Nette\Application\UI\Control
 		$this->cycle('startup', TRUE);
 		$this->cycle('before' . ucfirst($this->render));
 		$this->cycle($this->render . ucfirst($this->view));
-		$this->getTemplate()->setFile($this[Ytnuk\Templating\Template::class][$this->view]);
+		$this->getTemplate()->setFile($this[Ytnuk\Templating\Template\Factory::class][$this->view]);
 
 		return (string) $this->getTemplate();
 	}

@@ -55,7 +55,7 @@ final class Extension extends Nette\DI\CompilerExtension implements Ytnuk\Config
 		$components = [];
 		foreach ($builder->findByTag(self::COMPONENT_TAG) as $name => $component) {
 			$definition = $builder->getDefinition($name);
-			$components[str_replace('_', NULL, lcfirst($name))] = $definition->getImplement() ? : $definition->getClass();
+			$components[str_replace('\\', NULL, lcfirst($definition->getClass()))] = $definition->getImplement() ? : $definition->getClass();
 		}
 		$presenterFactory = $builder->getDefinition('application.presenterFactory');
 		$presenterFactory->getFactory()->setEntity(Presenter\Factory::class);

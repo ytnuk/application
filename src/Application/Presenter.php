@@ -23,7 +23,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function formatTemplateFiles()
 	{
-		return $this[Ytnuk\Templating\Template::class][$this->getView()];
+		return $this[Ytnuk\Templating\Template\Factory::class][$this->getView()];
 	}
 
 	/**
@@ -31,7 +31,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function formatLayoutTemplateFiles()
 	{
-		return $this[Ytnuk\Templating\Template::class][$this->getLayout() ? : 'layout']->disableRewind();
+		return $this[Ytnuk\Templating\Template\Factory::class][$this->getLayout() ? : 'layout']->disableRewind();
 	}
 
 	/**
