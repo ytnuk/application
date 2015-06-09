@@ -16,7 +16,7 @@ interface Provider
 	public function getCacheTags();
 
 	/**
-	 * @return array
+	 * @return string
 	 */
 	public function getCacheKey();
 }
