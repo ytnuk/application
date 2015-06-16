@@ -99,7 +99,7 @@ abstract class Control extends Nette\Application\UI\Control
 					}
 					list($output, $this->related) = $this->cache->load($key, function (& $dp) use (&$dependencies, $providers) {
 						foreach ($providers as $provider) {
-							$dependencies[Nette\Caching\Cache::TAGS] = array_merge($dependencies[Nette\Caching\Cache::TAGS], $provider->getCacheTags());
+							$dependencies[Nette\Caching\Cache::TAGS] = array_merge($dependencies[Nette\Caching\Cache::TAGS], array_keys($provider->getCacheTags()));
 						}
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->cache->getNamespace();
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->getUniqueId();
