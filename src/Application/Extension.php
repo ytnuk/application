@@ -25,9 +25,6 @@ final class Extension extends Nette\DI\CompilerExtension implements Ytnuk\Config
 				'errorPresenter' => NULL,
 				'mapping' => [
 					'*' => 'Ytnuk\*\*'
-				],
-				'scanDirs' => [
-					'%appDir%/../vendor'
 				]
 			],
 			Nette\Bridges\HttpDI\SessionExtension::class => [
