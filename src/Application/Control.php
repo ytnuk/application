@@ -207,32 +207,37 @@ abstract class Control extends Nette\Application\UI\Control implements Ytnuk\Cac
 	 */
 	private function render()
 	{
-		$this->cycle('startup', TRUE);
-		$this->cycle('before' . ucfirst($this->render));
-		$this->cycle($this->render . ucfirst($this->view));
-		$this->getTemplate()->setFile($this[Ytnuk\Templating\Template\Factory::class][$this->view]);
+		$template = $this->getTemplate();
+		$template->setParameters($this->cycle('startup', TRUE));
+		$template->setParameters($this->cycle($this->render . ucfirst($this->view)));
+		$template->setFile($this[Ytnuk\Templating\Template\Factory::class][$this->view]);
 
-		return (string) $this->getTemplate();
+		return (string) $template;
 	}
 
 	/**
 	 * @param string $method
 	 * @param bool $once
+	 *
+	 * @return array
 	 */
 	private function cycle($method, $once = FALSE)
 	{
 		if ($once && isset($this->cycle[$method])) {
-			return;
+			return $this->cycle[$method];
 		}
+		$result = [];
 		if (method_exists($this, $method)) {
-			call_user_func([
+			$result = (array) call_user_func([
 				$this,
 				$method
 			]);
 		}
 		if ($once) {
-			$this->cycle[$method] = TRUE;
+			$this->cycle[$method] = $result;
 		}
+
+		return $result;
 	}
 
 	/**
@@ -268,6 +273,28 @@ abstract class Control extends Nette\Application\UI\Control implements Ytnuk\Cac
 	}
 
 	/**
+	 * @param Nette\Caching\IStorage $storage
+	 */
+	public function setCacheStorage(Nette\Caching\IStorage $storage)
+	{
+		$this->cache = new Nette\Caching\Cache($storage, $this->getReflection()->getName());
+	}
+
+	/**
+	 * @param string|NULL $fragment
+	 */
+	public function handleRedirect($fragment = NULL)
+	{
+		$destination = 'this' . ($fragment ? '#' . $fragment : NULL);
+		if ($this->getPresenter()->isAjax()) {
+			$this->redrawControl();
+			$this->getPresenter()->getPayload()->redirect = $this->link($destination);
+		} else {
+			$this->redirect($destination);
+		}
+	}
+
+	/**
 	 * @inheritdoc
 	 */
 	public function redrawControl($snippet = NULL, $redraw = TRUE)
@@ -284,14 +311,6 @@ abstract class Control extends Nette\Application\UI\Control implements Ytnuk\Cac
 			unset($this->invalidViews[$snippet]);
 		}
 		parent::redrawControl($snippet, $redraw);
-	}
-
-	/**
-	 * @param Nette\Caching\IStorage $storage
-	 */
-	public function setCacheStorage(Nette\Caching\IStorage $storage)
-	{
-		$this->cache = new Nette\Caching\Cache($storage, $this->getReflection()->getName());
 	}
 
 	/**
@@ -320,15 +339,5 @@ abstract class Control extends Nette\Application\UI\Control implements Ytnuk\Cac
 	protected function createComponent($name)
 	{
 		return parent::createComponent($name) ? : $this->getPresenter()->createComponent($name);
-	}
-
-	public function handleRedirect()
-	{
-		if ($this->getPresenter()->isAjax()) {
-			$this->redrawControl();
-			$this->getPresenter()->getPayload()->redirect = $this->link('this');
-		} else {
-			$this->redirect('this');
-		}
 	}
 }
