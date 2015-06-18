@@ -10,7 +10,7 @@ use Ytnuk;
  *
  * @package Ytnuk\Application
  */
-abstract class Control extends Nette\Application\UI\Control
+abstract class Control extends Nette\Application\UI\Control implements Ytnuk\Cache\Provider
 {
 
 	/**
@@ -84,10 +84,7 @@ abstract class Control extends Nette\Application\UI\Control
 						Nette\Caching\Cache::TAGS => [],
 						Nette\Caching\Cache::FILES => []
 					];
-					$key = [
-						$this->view,
-						array_intersect_key($this->getPresenter()->getParameters(), array_flip($this->getPresenter()->getPersistentParams())),
-					];
+					$key = $this->getCacheKey();
 					$providers = [];
 					foreach (call_user_func_array($snippetMode, [& $dependencies]) as $dependency) {
 						if ($dependency instanceof Ytnuk\Cache\Provider) {
@@ -101,9 +98,8 @@ abstract class Control extends Nette\Application\UI\Control
 						foreach ($providers as $provider) {
 							$dependencies[Nette\Caching\Cache::TAGS] = array_merge($dependencies[Nette\Caching\Cache::TAGS], array_keys($provider->getCacheTags()));
 						}
+						$dependencies[Nette\Caching\Cache::TAGS] = array_merge($dependencies[Nette\Caching\Cache::TAGS], array_keys($this->getCacheTags()));
 						$dependencies[Nette\Caching\Cache::TAGS][] = $this->cache->getNamespace();
-						$dependencies[Nette\Caching\Cache::TAGS][] = $this->getUniqueId();
-						$dependencies[Nette\Caching\Cache::TAGS][] = $this->getSnippetId();
 						$output = $this->render();
 						$dependencies[Nette\Caching\Cache::FILES][] = $this->getTemplate()->getFile();
 						$dp = $dependencies;
@@ -169,6 +165,28 @@ abstract class Control extends Nette\Application\UI\Control
 		}
 
 		return parent::__call($name, $arguments);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getCacheKey()
+	{
+		return [
+			$this->view,
+			array_intersect_key($this->getPresenter()->getParameters(), array_flip($this->getPresenter()->getPersistentParams())),
+		];
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getCacheTags()
+	{
+		return [
+			$this->getUniqueId() => TRUE,
+			$this->getSnippetId() => TRUE
+		];
 	}
 
 	/**
@@ -302,5 +320,15 @@ abstract class Control extends Nette\Application\UI\Control
 	protected function createComponent($name)
 	{
 		return parent::createComponent($name) ? : $this->getPresenter()->createComponent($name);
+	}
+
+	public function handleRedirect()
+	{
+		if ($this->getPresenter()->isAjax()) {
+			$this->redrawControl();
+			$this->getPresenter()->getPayload()->redirect = $this->link('this');
+		} else {
+			$this->redirect('this');
+		}
 	}
 }
