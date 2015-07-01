@@ -16,7 +16,7 @@ abstract class Control extends Nette\Application\UI\Control implements Ytnuk\Cac
 	/**
 	 * @var bool
 	 */
-	public $rendering = FALSE;
+	private $rendering = FALSE;
 
 	/**
 	 * @var array
@@ -64,7 +64,7 @@ abstract class Control extends Nette\Application\UI\Control implements Ytnuk\Cac
 	public function __call($name, $arguments = [])
 	{
 		if (Nette\Utils\Strings::startsWith($name, $this->render)) {
-			$this->rendering = TRUE;
+			$this->isRendering(TRUE);
 			$name = lcfirst(Nette\Utils\Strings::substring($name, strlen($this->render))) ? : $this->view;
 			$isAjax = $this->getPresenter()->isAjax();
 			$payload = $this->getPresenter()->getPayload();
@@ -159,12 +159,22 @@ abstract class Control extends Nette\Application\UI\Control implements Ytnuk\Cac
 				}
 				$this->view = $defaultView;
 			}
-			$this->rendering = FALSE;
+			$this->isRendering(FALSE);
 
 			return $output;
 		}
 
 		return parent::__call($name, $arguments);
+	}
+
+	/**
+	 * @param bool|NULL $rendering
+	 *
+	 * @return bool
+	 */
+	public function isRendering($rendering = NULL)
+	{
+		return $this->rendering = $rendering === NULL ? $this->rendering : $rendering;
 	}
 
 	/**
@@ -247,7 +257,7 @@ abstract class Control extends Nette\Application\UI\Control implements Ytnuk\Cac
 	{
 		$control = $this;
 		while ($control = $control->lookup(self::class, FALSE)) {
-			if ($control->rendering) {
+			if ($control->isRendering()) {
 				return $control;
 			}
 		}
