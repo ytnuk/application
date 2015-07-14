@@ -70,11 +70,10 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	{
 		if ($destination instanceof Ytnuk\Link\Entity) {
 			$component = $this;
-			$collection = $destination->parameters->get();
-			$args += $collection->fetchPairs('key', 'value');
+			$args += $destination->parameters->get()->fetchPairs('key', 'value');
 			$destination = $destination->destination;
 			if (isset($args['absolute'])) {
-				$destination = ($args['absolute'] ? '//' : NULL) . ltrim($destination, '/');
+				$destination = ($args['absolute'] ? '//' : NULL) . $destination;
 				unset($args['absolute']);
 			}
 		}

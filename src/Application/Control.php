@@ -218,11 +218,11 @@ abstract class Control extends Nette\Application\UI\Control implements Ytnuk\Cac
 	private function render()
 	{
 		$template = $this->getTemplate();
+		$template->setFile($this[Ytnuk\Templating\Template\Factory::class][$this->view]);
 		$template->setParameters($this->cycle('startup', TRUE));
 		$template->setParameters($this->cycle($this->render . ucfirst($this->view)));
-		$template->setFile($this[Ytnuk\Templating\Template\Factory::class][$this->view]);
 
-		return (string) $template;
+		return $template->getLatte()->renderToString($template->getFile(), $template->getParameters());
 	}
 
 	/**
