@@ -1,5 +1,4 @@
 <?php
-
 namespace Ytnuk\Application\Presenter;
 
 use Nette;
@@ -10,7 +9,8 @@ use Ytnuk;
  *
  * @package Ytnuk\Application
  */
-final class Factory extends Nette\Application\PresenterFactory
+final class Factory
+	extends Nette\Application\PresenterFactory
 {
 
 	/**
