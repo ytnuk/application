@@ -24,7 +24,9 @@ final class Factory
 	public function createPresenter($name)
 	{
 		$presenter = parent::createPresenter($name);
-		$presenter->setComponents($this->components);
+		if ($presenter instanceof Ytnuk\Application\Presenter) {
+			$presenter->setComponents($this->components);
+		}
 
 		return $presenter;
 	}

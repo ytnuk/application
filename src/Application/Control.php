@@ -113,6 +113,9 @@ abstract class Control
 						Nette\Caching\Cache::FILES => [],
 					];
 					$key = $this->getCacheKey();
+					/**
+					 * @var Ytnuk\Cache\Provider[] $providers
+					 */
 					$providers = [];
 					foreach (
 						call_user_func_array(
@@ -226,7 +229,10 @@ abstract class Control
 						foreach (
 							$this->related[$this->view] as $subName => $subViews
 						) {
-							$this[$subName]->redrawControl();
+							$related = isset($this[$subName]) ? $this[$subName] : NULL;
+							if ($related instanceof Nette\Application\UI\IRenderable) {
+								$related->redrawControl();
+							}
 						}
 						$snippetMode = $this->snippetMode;
 						Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
@@ -382,6 +388,9 @@ abstract class Control
 	public function lookupRendering()
 	{
 		$control = $this;
+		/**
+		 * @var self $control
+		 */
 		while ($control = $control->lookup(
 			self::class,
 			FALSE
@@ -450,18 +459,17 @@ abstract class Control
 	{
 		$template = $this->getTemplate();
 		$template->setFile($this[Ytnuk\Templating\Template\Factory::class][$this->view]);
-		$template->setParameters(
-			$this->cycle(
-				'startup',
-				TRUE
-			)
+		$startup = $this->cycle(
+			'startup',
+			TRUE
 		);
-		$template->setParameters($this->cycle($this->render . ucfirst($this->view)));
+		$render = $this->cycle($this->render . ucfirst($this->view));
+		if ($template instanceof Nette\Bridges\ApplicationLatte\Template) {
+			$template->setParameters($startup);
+			$template->setParameters($render);
+		}
 
-		return $template->getLatte()->renderToString(
-			$template->getFile(),
-			$template->getParameters()
-		);
+		return (string) $template;
 	}
 
 	/**
