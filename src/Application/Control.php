@@ -73,7 +73,7 @@ abstract class Control
 		) {
 			$arguments = current($arguments) ? : $arguments;
 			$arguments = (array) $arguments + [
-					'snippet' => 'div',
+					'snippet' => TRUE,
 					'echo' => TRUE,
 				];
 			$this->isRendering(TRUE);
@@ -189,7 +189,7 @@ abstract class Control
 							$relatedViews as $relatedView => $relatedSnippetId
 						) {
 							$relatedSnippet = Nette\Utils\Html::el(
-								$arguments['snippet'],
+								'div',
 								['id' => $relatedSnippetId]
 							);
 							if (strpos(
@@ -219,7 +219,7 @@ abstract class Control
 				}
 				if ($arguments['snippet'] && $this->views[$this->view] && $snippetId = $this->getSnippetId()) {
 					$snippet = Nette\Utils\Html::el(
-						$arguments['snippet'],
+						'div',
 						['id' => $snippetId]
 					);
 					if ($isAjax && $this->related[$this->view]) {
@@ -461,8 +461,7 @@ abstract class Control
 		return $template->getLatte()->renderToString(
 			$template->getFile(),
 			$template->getParameters()
-		)
-			;
+		);
 	}
 
 	/**

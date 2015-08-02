@@ -19,11 +19,24 @@ abstract class Presenter
 	private $components;
 
 	/**
+	 * @var Nette\DI\Container
+	 */
+	private $container;
+
+	/**
 	 * @param array $components
 	 */
 	public function setComponents(array $components)
 	{
 		$this->components = $components;
+	}
+
+	/**
+	 * @param \Nette\DI\Container $container
+	 */
+	public function injectContainer(Nette\DI\Container $container)
+	{
+		$this->container = $container;
 	}
 
 	/**
@@ -56,7 +69,7 @@ abstract class Presenter
 	{
 		$component = parent::createComponent($name);
 		if ( ! $component && isset($this->components[$name])) {
-			$component = $this->getContext()->getByType($this->components[$name]);
+			$component = $this->container->getByType($this->components[$name]);
 			if (method_exists(
 				$component,
 				'create'
@@ -87,8 +100,7 @@ abstract class Presenter
 			$args += $destination->parameters->get()->fetchPairs(
 				'key',
 				'value'
-			)
-			;
+			);
 			$destination = $destination->destination;
 			if (isset($args['absolute'])) {
 				$destination = ($args['absolute'] ? '//' : NULL) . $destination;
@@ -109,7 +121,7 @@ abstract class Presenter
 	 */
 	public function formatLayoutTemplateFiles()
 	{
-		return $this[Ytnuk\Templating\Template\Factory::class][$this->getLayout() ? : 'layout']->disableRewind();
+		return $this[Ytnuk\Templating\Template\Factory::class][$this->getLayout() ? : 'layout']->disableRewind() ? : parent::formatLayoutTemplateFiles();
 	}
 
 	/**
@@ -117,7 +129,7 @@ abstract class Presenter
 	 */
 	public function formatTemplateFiles()
 	{
-		return $this[Ytnuk\Templating\Template\Factory::class][$this->getView()];
+		return $this[Ytnuk\Templating\Template\Factory::class][$this->getView()] ? : parent::formatTemplateFiles();
 	}
 
 	/**
