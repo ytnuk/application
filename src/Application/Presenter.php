@@ -46,10 +46,7 @@ abstract class Presenter
 	{
 		parent::beforeRender();
 		if ($this->snippetMode = $this->isAjax()) {
-			if ($this->hasFlashSession()) {
-				$this[Ytnuk\Message\Control::class]->redrawControl();
-			}
-			if ($this->getRequest()->isMethod('POST') || $this->getParameter('do')) {
+			if ($this->getRequest()->isMethod(Nette\Http\IRequest::POST) || $this->getParameter(self::SIGNAL_KEY)) {
 				Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
 					$this,
 					new \stdClass,
@@ -121,7 +118,9 @@ abstract class Presenter
 	 */
 	public function formatLayoutTemplateFiles()
 	{
-		return $this[Ytnuk\Templating\Template\Factory::class][$this->getLayout() ? : 'layout']->disableRewind() ? : parent::formatLayoutTemplateFiles();
+		$template = $this[Ytnuk\Templating\Template\Factory::class][$this->getLayout() ? : 'layout'];
+
+		return $template instanceof Ytnuk\Templating\Template ? $template->disableRewind() : parent::formatLayoutTemplateFiles();
 	}
 
 	/**

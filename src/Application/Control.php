@@ -113,9 +113,6 @@ abstract class Control
 						Nette\Caching\Cache::FILES => [],
 					];
 					$key = $this->getCacheKey();
-					/**
-					 * @var Ytnuk\Cache\Provider[] $providers
-					 */
 					$providers = [];
 					foreach (
 						call_user_func_array(
@@ -140,10 +137,12 @@ abstract class Control
 							foreach (
 								$providers as $provider
 							) {
-								$dependencies[Nette\Caching\Cache::TAGS] = array_merge(
-									$dependencies[Nette\Caching\Cache::TAGS],
-									array_keys($provider->getCacheTags())
-								);
+								if ($provider instanceof Ytnuk\Cache\Provider) {
+									$dependencies[Nette\Caching\Cache::TAGS] = array_merge(
+										$dependencies[Nette\Caching\Cache::TAGS],
+										array_keys($provider->getCacheTags())
+									);
+								}
 							}
 							$dependencies[Nette\Caching\Cache::TAGS] = array_merge(
 								$dependencies[Nette\Caching\Cache::TAGS],
@@ -388,19 +387,17 @@ abstract class Control
 	public function lookupRendering()
 	{
 		$control = $this;
-		/**
-		 * @var self $control
-		 */
-		while ($control = $control->lookup(
-			self::class,
-			FALSE
-		)) {
-			if ($control->isRendering()) {
-				return $control;
+		do {
+			if ($control !== $this && $control->isRendering()) {
+				break;
 			}
-		}
+			$control = $control->lookup(
+				self::class,
+				FALSE
+			);
+		} while ($control instanceof self);
 
-		return NULL;
+		return $control;
 	}
 
 	/**
@@ -459,14 +456,12 @@ abstract class Control
 	{
 		$template = $this->getTemplate();
 		$template->setFile($this[Ytnuk\Templating\Template\Factory::class][$this->view]);
-		$startup = $this->cycle(
-			'startup',
-			TRUE
-		);
-		$render = $this->cycle($this->render . ucfirst($this->view));
+		$parameters = $this->cycle(
+				'startup',
+				TRUE
+			) + $this->cycle($this->render . ucfirst($this->view));
 		if ($template instanceof Nette\Bridges\ApplicationLatte\Template) {
-			$template->setParameters($startup);
-			$template->setParameters($render);
+			$template->setParameters($parameters);
 		}
 
 		return (string) $template;
