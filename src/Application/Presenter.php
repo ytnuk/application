@@ -4,11 +4,6 @@ namespace Ytnuk\Application;
 use Nette;
 use Ytnuk;
 
-/**
- * Class Presenter
- *
- * @package Ytnuk\Application
- */
 abstract class Presenter
 	extends Nette\Application\UI\Presenter
 {
@@ -16,76 +11,36 @@ abstract class Presenter
 	/**
 	 * @var array
 	 */
-	private $components;
+	private $components = [];
 
 	/**
 	 * @var Nette\DI\Container
 	 */
 	private $container;
 
-	/**
-	 * @param array $components
-	 */
 	public function setComponents(array $components)
 	{
 		$this->components = $components;
 	}
 
-	/**
-	 * @param \Nette\DI\Container $container
-	 */
 	public function injectContainer(Nette\DI\Container $container)
 	{
 		$this->container = $container;
 	}
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function beforeRender()
-	{
-		parent::beforeRender();
-		if ($this->snippetMode = $this->isAjax()) {
-			if ($this->getRequest()->isMethod(Nette\Http\IRequest::POST) || $this->getParameter(self::SIGNAL_KEY)) {
-				Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
-					$this,
-					new \stdClass,
-					[]
-				);
-				$this->sendPayload();
-			} else {
-				$this->redrawControl();
-			}
-		}
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	protected function createComponent($name)
+	protected function createComponent($name) : Nette\ComponentModel\IComponent
 	{
 		$component = parent::createComponent($name);
 		if ( ! $component && isset($this->components[$name])) {
 			$component = $this->container->getByType($this->components[$name]);
-			if (method_exists(
-				$component,
-				'create'
-			)) {
-				$component = call_user_func(
-					[
-						$component,
-						'create',
-					]
-				);
+			if ($component instanceof Ytnuk\Application\Control\Factory) {
+				$component = $component->create();
 			}
 		}
 
 		return $component;
 	}
 
-	/**
-	 * @inheritdoc
-	 */
 	protected function createRequest(
 		$component,
 		$destination,
@@ -113,27 +68,18 @@ abstract class Presenter
 		);
 	}
 
-	/**
-	 * @return Ytnuk\Templating\Template
-	 */
-	public function formatLayoutTemplateFiles()
+	public function formatLayoutTemplateFiles() : Ytnuk\Templating\Template
 	{
 		$template = $this[Ytnuk\Templating\Template\Factory::class][$this->getLayout() ? : 'layout'];
 
 		return $template instanceof Ytnuk\Templating\Template ? $template->disableRewind() : parent::formatLayoutTemplateFiles();
 	}
 
-	/**
-	 * @return Ytnuk\Templating\Template
-	 */
-	public function formatTemplateFiles()
+	public function formatTemplateFiles() : Ytnuk\Templating\Template
 	{
 		return $this[Ytnuk\Templating\Template\Factory::class][$this->getView()] ? : parent::formatTemplateFiles();
 	}
 
-	/**
-	 * @inheritdoc
-	 */
 	public function getComponent(
 		$name,
 		$need = TRUE
@@ -149,26 +95,47 @@ abstract class Presenter
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
+	public function processSignal()
+	{
+		$signal = $this->getSignal();
+		parent::processSignal();
+		if ($this->snippetMode = $this->isAjax()) {
+			if ($signal) {
+				Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
+					$this,
+					new \stdClass,
+					[]
+				);
+				$this->sendPayload();
+			} else {
+				$this->redrawControl();
+			}
+		}
+	}
+
 	public function sendPayload()
 	{
-		if (isset($this->payload->snippets)) {
+		$payload = $this->getPayload();
+		if ($payload && isset($payload->snippets) && $snippets = (array) $payload->snippets) {
+			ksort($snippets);
 			uksort(
-				$this->payload->snippets,
+				$snippets,
 				function (
-					$a,
-					$b
+					$left,
+					$right
 				) {
 					return substr_count(
-						$a,
+						$left,
 						'-'
-					) > substr_count(
-						$b,
+					) <=> substr_count(
+						$right,
 						'-'
 					);
 				}
 			);
+			$payload->snippets = $snippets;
 		}
 		parent::sendPayload();
 	}

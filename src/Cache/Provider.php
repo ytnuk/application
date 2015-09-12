@@ -1,21 +1,10 @@
 <?php
 namespace Ytnuk\Cache;
 
-/**
- * Interface Provider
- *
- * @package Ytnuk\Cache
- */
 interface Provider
 {
 
-	/**
-	 * @return array
-	 */
-	public function getCacheTags();
+	public function getCacheTags() : array;
 
-	/**
-	 * @return array
-	 */
-	public function getCacheKey();
+	public function getCacheKey() : array;
 }

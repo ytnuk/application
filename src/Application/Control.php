@@ -4,15 +4,12 @@ namespace Ytnuk\Application;
 use Nette;
 use Ytnuk;
 
-/**
- * Class Control
- *
- * @package Ytnuk\Application
- */
 abstract class Control
 	extends Nette\Application\UI\Control
 	implements Ytnuk\Cache\Provider
 {
+
+	const RENDER_METHOD = 'render';
 
 	/**
 	 * @var bool
@@ -40,11 +37,6 @@ abstract class Control
 	private $rendered = [];
 
 	/**
-	 * @var string
-	 */
-	private $render = 'render';
-
-	/**
 	 * @var array
 	 */
 	private $invalidViews = [];
@@ -59,16 +51,13 @@ abstract class Control
 	 */
 	private $cache;
 
-	/**
-	 * @inheritdoc
-	 */
 	public function __call(
 		$name,
 		$arguments = []
 	) {
 		if (Nette\Utils\Strings::startsWith(
 			$name,
-			$this->render
+			self::RENDER_METHOD
 		)
 		) {
 			$arguments = current($arguments) ? : $arguments;
@@ -80,7 +69,7 @@ abstract class Control
 			$name = lcfirst(
 				Nette\Utils\Strings::substring(
 					$name,
-					strlen($this->render)
+					strlen(self::RENDER_METHOD)
 				)
 			) ? : $this->view;
 			$isAjax = $this->getPresenter()->isAjax();
@@ -115,8 +104,8 @@ abstract class Control
 					$key = $this->getCacheKey();
 					$providers = [];
 					foreach (
-						call_user_func_array(
-							$snippetMode,
+						$snippetMode(
+							...
 							[& $dependencies]
 						) as $dependency
 					) {
@@ -187,6 +176,7 @@ abstract class Control
 					foreach (
 						$this->related[$this->view] as $relatedName => $relatedViews
 					) {
+						$related = $this->getComponent($relatedName);
 						foreach (
 							$relatedViews as $relatedView => $relatedSnippetId
 						) {
@@ -204,8 +194,8 @@ abstract class Control
 									$relatedSnippet->setHtml(
 										call_user_func(
 											[
-												$this->getComponent($relatedName),
-												$this->render . ucfirst($relatedView),
+												$related,
+												self::RENDER_METHOD . ucfirst($relatedView),
 											],
 											[
 												'echo' => FALSE,
@@ -264,9 +254,6 @@ abstract class Control
 		);
 	}
 
-	/**
-	 * @inheritdoc
-	 */
 	protected function attached($presenter)
 	{
 		parent::attached($presenter);
@@ -277,20 +264,14 @@ abstract class Control
 		);
 	}
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function createComponent($name)
+	protected function createComponent($name) : Nette\ComponentModel\IComponent
 	{
 		return parent::createComponent($name) ? : $this->getPresenter()->createComponent($name);
 	}
 
-	/**
-	 * @inheritdoc
-	 */
 	public function getComponent(
 		$name,
-		$need = TRUE
+		bool $need = TRUE
 	) {
 		return parent::getComponent(
 			str_replace(
@@ -302,10 +283,7 @@ abstract class Control
 		);
 	}
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getSnippetId($name = NULL)
+	public function getSnippetId($name = NULL) : string
 	{
 		$uniqueId = $this->getUniqueId();
 
@@ -322,12 +300,9 @@ abstract class Control
 		);
 	}
 
-	/**
-	 * @inheritdoc
-	 */
 	public function redrawControl(
-		$snippet = NULL,
-		$redraw = TRUE
+		string $snippet = NULL,
+		bool $redraw = TRUE
 	) {
 		if ($redraw) {
 			if (isset($this->views[$snippet])) {
@@ -346,20 +321,12 @@ abstract class Control
 		);
 	}
 
-	/**
-	 * @param bool|NULL $rendering
-	 *
-	 * @return bool
-	 */
-	public function isRendering($rendering = NULL)
+	public function isRendering(bool $rendering = NULL) : bool
 	{
 		return $this->rendering = $rendering === NULL ? $this->rendering : $rendering;
 	}
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getCacheKey()
+	public function getCacheKey() : array
 	{
 		return [
 			$this->view,
@@ -370,10 +337,7 @@ abstract class Control
 		];
 	}
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getCacheTags()
+	public function getCacheTags() : array
 	{
 		return [
 			$this->getUniqueId() => TRUE,
@@ -381,9 +345,6 @@ abstract class Control
 		];
 	}
 
-	/**
-	 * @return self|NULL
-	 */
 	public function lookupRendering()
 	{
 		$control = $this;
@@ -400,13 +361,9 @@ abstract class Control
 		return $control;
 	}
 
-	/**
-	 * @param Control $control
-	 * @param string $view
-	 */
 	public function setRelated(
 		self $control,
-		$view
+		string $view
 	) {
 		$this->related[$this->view][substr(
 			$control->getUniqueId(),
@@ -414,69 +371,71 @@ abstract class Control
 		)][$view] = $control->getSnippetId();
 	}
 
-	/**
-	 * @param Nette\Caching\IStorage $storage
-	 */
 	public function setCacheStorage(Nette\Caching\IStorage $storage)
 	{
 		$this->cache = new Nette\Caching\Cache(
 			$storage,
-			$this->getReflection()->getName()
+			static::class
 		);
 	}
 
-	/**
-	 * @param string|NULL $fragment
-	 */
-	public function handleRedirect($fragment = NULL)
+	public function handleRedirect(string $fragment = NULL)
 	{
 		$destination = 'this' . ($fragment ? '#' . $fragment : NULL);
+		$parameters = $this->getParameters();
+		unset($parameters['fragment']);
 		if ($this->getPresenter()->isAjax()) {
 			$this->redrawControl();
-			$this->getPresenter()->getPayload()->redirect = $this->link($destination);
+			$this->getPresenter()->getPayload()->redirect = $this->link(
+				$destination,
+				$parameters
+			);
 		} else {
-			$this->redirect($destination);
+			$this->redirect(
+				$destination,
+				$parameters
+			);
 		}
 	}
 
-	/**
-	 * @return array
-	 */
-	protected function getViews()
+	function __toString() : string
+	{
+		return $this->render();
+	}
+
+	protected function getViews() : array
 	{
 		return [
 			$this->view => TRUE,
 		];
 	}
 
-	/**
-	 * @return string
-	 */
-	private function render()
+	private function render() : string
 	{
 		$template = $this->getTemplate();
 		$template->setFile($this[Ytnuk\Templating\Template\Factory::class][$this->view]);
-		$parameters = $this->cycle(
-				'startup',
-				TRUE
-			) + $this->cycle($this->render . ucfirst($this->view));
 		if ($template instanceof Nette\Bridges\ApplicationLatte\Template) {
-			$template->setParameters($parameters);
+			$template->setParameters(
+				$this->cycle(
+					'startup',
+					TRUE
+				) + $this->cycle(self::RENDER_METHOD . ucfirst($this->view))
+			);
+
+			return $template->getLatte()->renderToString(
+				$template->getFile(),
+				$template->getParameters()
+			);
 		}
 
 		return (string) $template;
 	}
 
-	/**
-	 * @param string $method
-	 * @param bool $once
-	 *
-	 * @return array
-	 */
 	private function cycle(
 		$method,
 		$once = FALSE
-	) {
+	) : array
+	{
 		if ($once && isset($this->cycle[$method])) {
 			return $this->cycle[$method];
 		}

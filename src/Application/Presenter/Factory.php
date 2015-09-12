@@ -4,11 +4,6 @@ namespace Ytnuk\Application\Presenter;
 use Nette;
 use Ytnuk;
 
-/**
- * Class Factory
- *
- * @package Ytnuk\Application
- */
 final class Factory
 	extends Nette\Application\PresenterFactory
 {
@@ -18,10 +13,7 @@ final class Factory
 	 */
 	private $components = [];
 
-	/**
-	 * @inheritdoc
-	 */
-	public function createPresenter($name)
+	public function createPresenter($name) : Nette\Application\IPresenter
 	{
 		$presenter = parent::createPresenter($name);
 		if ($presenter instanceof Ytnuk\Application\Presenter) {
@@ -31,9 +23,6 @@ final class Factory
 		return $presenter;
 	}
 
-	/**
-	 * @param array $components
-	 */
 	public function setComponents(array $components)
 	{
 		$this->components = $components;

@@ -4,11 +4,6 @@ namespace Ytnuk\Application;
 use Nette;
 use Ytnuk;
 
-/**
- * Class Extension
- *
- * @package Ytnuk\Application
- */
 final class Extension
 	extends Nette\DI\CompilerExtension
 	implements Ytnuk\Config\Provider
@@ -16,10 +11,7 @@ final class Extension
 
 	const COMPONENT_TAG = 'application.component';
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getConfigResources()
+	public function getConfigResources() : array
 	{
 		return [
 			Nette\Bridges\ApplicationDI\ApplicationExtension::class => [
@@ -27,6 +19,7 @@ final class Extension
 				'mapping' => [
 					'*' => 'Ytnuk\*\*',
 				],
+				'scanDirs' => FALSE,
 			],
 			Nette\Bridges\HttpDI\SessionExtension::class => [
 				'debugger' => TRUE,
@@ -44,9 +37,6 @@ final class Extension
 		];
 	}
 
-	/**
-	 * @inheritdoc
-	 */
 	public function beforeCompile()
 	{
 		$builder = $this->getContainerBuilder();
