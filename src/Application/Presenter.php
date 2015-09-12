@@ -94,6 +94,23 @@ abstract class Presenter
 		);
 	}
 
+	public function redrawControl(
+		string $snippet = NULL,
+		bool $redraw = TRUE
+	) {
+		parent::redrawControl(
+			$snippet,
+			$redraw
+		);
+		foreach ($this->components as $name => $factory) {
+			if (isset($this[$name]) && $component = $this[$name]) {
+				if ($component instanceof Nette\Application\UI\IRenderable) {
+					$component->redrawControl();
+				}
+			}
+		}
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -101,17 +118,15 @@ abstract class Presenter
 	{
 		$signal = $this->getSignal();
 		parent::processSignal();
-		if ($this->snippetMode = $this->isAjax()) {
-			if ($signal) {
-				Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
-					$this,
-					new \stdClass,
-					[]
-				);
-				$this->sendPayload();
-			} else {
-				$this->redrawControl();
-			}
+		if ($signal && $this->snippetMode = $this->isAjax()) {
+			Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
+				$this,
+				new \stdClass,
+				[]
+			);
+			$this->sendPayload();
+		} else {
+			$this->redrawControl();
 		}
 	}
 
