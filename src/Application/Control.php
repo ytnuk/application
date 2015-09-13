@@ -329,6 +329,7 @@ abstract class Control
 	public function getCacheKey() : array
 	{
 		return [
+			$this->getUniqueId(),
 			$this->view,
 			array_intersect_key(
 				$this->getPresenter()->getParameters(),
