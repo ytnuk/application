@@ -2,6 +2,7 @@
 namespace Ytnuk\Application;
 
 use Nette;
+use stdClass;
 use Ytnuk;
 
 abstract class Control
@@ -167,7 +168,7 @@ abstract class Control
 			if ($this->snippetMode = $defaultSnippetMode) {
 				Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
 					$this,
-					new \stdClass,
+					new stdClass,
 					[]
 				);
 			} elseif (isset($this->rendered[$this->view = $name])) {
@@ -226,7 +227,7 @@ abstract class Control
 						$snippetMode = $this->snippetMode;
 						Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
 							$this,
-							new \stdClass,
+							new stdClass,
 							[]
 						);
 						$this->snippetMode = $snippetMode;

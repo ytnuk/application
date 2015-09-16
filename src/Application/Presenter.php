@@ -2,6 +2,7 @@
 namespace Ytnuk\Application;
 
 use Nette;
+use stdClass;
 use Ytnuk;
 
 abstract class Presenter
@@ -121,7 +122,7 @@ abstract class Presenter
 		if ($signal && $this->snippetMode = $this->isAjax()) {
 			Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
 				$this,
-				new \stdClass,
+				new stdClass,
 				[]
 			);
 			$this->sendPayload();
