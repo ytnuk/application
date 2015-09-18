@@ -164,6 +164,16 @@ abstract class Control
 				$this->rendered[$view] = $output;
 			}
 			$this->view = $defaultView;
+			if ($isAjax && $this->related[$this->view]) {
+				foreach (
+					$this->related[$this->view] as $subName => $subViews
+				) {
+					$related = isset($this[$subName]) ? $this[$subName] : NULL;
+					if ($related instanceof Nette\Application\UI\IRenderable) {
+						$related->redrawControl();
+					}
+				}
+			}
 			$output = NULL;
 			if ($this->snippetMode = $defaultSnippetMode) {
 				Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
@@ -216,14 +226,6 @@ abstract class Control
 						['id' => $snippetId]
 					);
 					if ($isAjax && $this->related[$this->view]) {
-						foreach (
-							$this->related[$this->view] as $subName => $subViews
-						) {
-							$related = isset($this[$subName]) ? $this[$subName] : NULL;
-							if ($related instanceof Nette\Application\UI\IRenderable) {
-								$related->redrawControl();
-							}
-						}
 						$snippetMode = $this->snippetMode;
 						Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
 							$this,
@@ -332,9 +334,14 @@ abstract class Control
 		return [
 			$this->getUniqueId(),
 			$this->view,
-			array_intersect_key(
-				$this->getPresenter()->getParameters(),
-				array_flip($this->getPresenter()->getPersistentParams())
+			array_map(
+				function ($parameter) {
+					return $parameter instanceof Ytnuk\Cache\Provider ? $parameter->getCacheKey() : $parameter;
+				},
+				array_intersect_key(
+					$this->getPresenter()->getParameters(),
+					array_flip($this->getPresenter()->getPersistentParams())
+				)
 			),
 		];
 	}
@@ -388,10 +395,6 @@ abstract class Control
 		unset($parameters['fragment']);
 		if ($this->getPresenter()->isAjax()) {
 			$this->redrawControl();
-			$this->getPresenter()->getPayload()->redirect = $this->link(
-				$destination,
-				$parameters
-			);
 		} else {
 			$this->redirect(
 				$destination,
