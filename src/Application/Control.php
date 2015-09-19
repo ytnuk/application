@@ -395,6 +395,12 @@ abstract class Control
 		unset($parameters['fragment']);
 		if ($this->getPresenter()->isAjax()) {
 			$this->redrawControl();
+			$payload = $this->getPresenter()->getPayload();
+			$payload->disableHistory = TRUE;
+			$payload->redirect = $this->link(
+				$destination,
+				$parameters
+			);
 		} else {
 			$this->redirect(
 				$destination,
