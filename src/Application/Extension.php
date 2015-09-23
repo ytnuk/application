@@ -9,8 +9,6 @@ final class Extension
 	implements Ytnuk\Config\Provider
 {
 
-	const COMPONENT_TAG = 'application.component';
-
 	public function getConfigResources() : array
 	{
 		return [
@@ -35,27 +33,5 @@ final class Extension
 				],
 			],
 		];
-	}
-
-	public function beforeCompile()
-	{
-		$builder = $this->getContainerBuilder();
-		$components = [];
-		foreach (
-			$builder->findByTag(self::COMPONENT_TAG) as $name => $component
-		) {
-			$definition = $builder->getDefinition($name);
-			$components[str_replace(
-				'\\',
-				NULL,
-				lcfirst($definition->getClass())
-			)] = $definition->getImplement() ? : $definition->getClass();
-		}
-		$presenterFactory = $builder->getDefinition('application.presenterFactory');
-		$presenterFactory->getFactory()->setEntity(Presenter\Factory::class);
-		$presenterFactory->addSetup(
-			'setComponents',
-			[$components]
-		);
 	}
 }

@@ -52,6 +52,10 @@ abstract class Control
 	 */
 	private $cache;
 
+	//TODO: when rendering in ajax, every view of control is rendered because of missing context
+	//TODO: every view as separate control
+	//TODO: every view automaticaly clone $this into new control, changing the view
+	//TODO: ...
 	public function __call(
 		$name,
 		$arguments = []
@@ -272,20 +276,6 @@ abstract class Control
 		return parent::createComponent($name) ? : $this->getPresenter()->createComponent($name);
 	}
 
-	public function getComponent(
-		$name,
-		bool $need = TRUE
-	) {
-		return parent::getComponent(
-			str_replace(
-				'\\',
-				NULL,
-				lcfirst($name)
-			),
-			$need
-		);
-	}
-
 	public function getSnippetId($name = NULL) : string
 	{
 		$uniqueId = $this->getUniqueId();
@@ -424,7 +414,7 @@ abstract class Control
 	private function render() : string
 	{
 		$template = $this->getTemplate();
-		$template->setFile($this[Ytnuk\Templating\Template\Factory::class][$this->view]);
+		$template->setFile($this[Ytnuk\Templating\Control::NAME][$this->view]);
 		if ($template instanceof Nette\Bridges\ApplicationLatte\Template) {
 			$template->setParameters(
 				$this->cycle(

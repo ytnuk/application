@@ -10,37 +10,14 @@ abstract class Presenter
 {
 
 	/**
-	 * @var array
+	 * @var Ytnuk\Templating\Control\Factory
 	 */
-	private $components = [];
+	private $templatingControl;
 
 	/**
-	 * @var Nette\DI\Container
+	 * @var Ytnuk\Message\Control\Factory
 	 */
-	private $container;
-
-	public function setComponents(array $components)
-	{
-		$this->components = $components;
-	}
-
-	public function injectContainer(Nette\DI\Container $container)
-	{
-		$this->container = $container;
-	}
-
-	protected function createComponent($name) : Nette\ComponentModel\IComponent
-	{
-		$component = parent::createComponent($name);
-		if ( ! $component && isset($this->components[$name])) {
-			$component = $this->container->getByType($this->components[$name]);
-			if ($component instanceof Ytnuk\Application\Control\Factory) {
-				$component = $component->create();
-			}
-		}
-
-		return $component;
-	}
+	private $messageControl;
 
 	protected function createRequest(
 		$component,
@@ -71,28 +48,32 @@ abstract class Presenter
 
 	public function formatLayoutTemplateFiles() : Ytnuk\Templating\Template
 	{
-		$template = $this[Ytnuk\Templating\Template\Factory::class][$this->getLayout() ? : 'layout'];
+		$template = $this[Ytnuk\Templating\Control::NAME][$this->getLayout() ? : 'layout'];
 
 		return $template instanceof Ytnuk\Templating\Template ? $template->disableRewind() : parent::formatLayoutTemplateFiles();
 	}
 
 	public function formatTemplateFiles() : Ytnuk\Templating\Template
 	{
-		return $this[Ytnuk\Templating\Template\Factory::class][$this->getView()] ? : parent::formatTemplateFiles();
+		return $this[Ytnuk\Templating\Control::NAME][$this->getView()] ? : parent::formatTemplateFiles();
 	}
 
-	public function getComponent(
-		$name,
-		$need = TRUE
+	public function injectApplication(
+		Ytnuk\Templating\Control\Factory $templatingControl,
+		Ytnuk\Message\Control\Factory $messageControl
 	) {
-		return parent::getComponent(
-			str_replace(
-				'\\',
-				NULL,
-				lcfirst($name)
-			),
-			$need
-		);
+		$this->templatingControl = $templatingControl;
+		$this->messageControl = $messageControl;
+	}
+
+	protected function createComponentTemplating()
+	{
+		return $this->templatingControl->create();
+	}
+
+	protected function createComponentMessage()
+	{
+		return $this->messageControl->create();
 	}
 
 	public function redrawControl(
@@ -103,13 +84,7 @@ abstract class Presenter
 			$snippet,
 			$redraw
 		);
-		foreach ($this->components as $name => $factory) {
-			if (isset($this[$name]) && $component = $this[$name]) {
-				if ($component instanceof Nette\Application\UI\IRenderable) {
-					$component->redrawControl();
-				}
-			}
-		}
+		$this[Ytnuk\Message\Control::NAME]->redrawControl();
 	}
 
 	/**
