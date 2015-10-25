@@ -134,13 +134,13 @@ abstract class Control
 								if ($provider instanceof Ytnuk\Cache\Provider) {
 									$dependencies[Nette\Caching\Cache::TAGS] = array_merge(
 										$dependencies[Nette\Caching\Cache::TAGS],
-										array_keys($provider->getCacheTags())
+										$provider->getCacheTags()
 									);
 								}
 							}
 							$dependencies[Nette\Caching\Cache::TAGS] = array_merge(
 								$dependencies[Nette\Caching\Cache::TAGS],
-								array_keys($this->getCacheTags())
+								$this->getCacheTags()
 							);
 							$dependencies[Nette\Caching\Cache::TAGS][] = $this->cache->getNamespace();
 							$output = $this->render();
@@ -324,14 +324,9 @@ abstract class Control
 		return [
 			$this->getUniqueId(),
 			$this->view,
-			array_map(
-				function ($parameter) {
-					return $parameter instanceof Ytnuk\Cache\Provider ? $parameter->getCacheKey() : $parameter;
-				},
-				array_intersect_key(
-					$this->getPresenter()->getParameters(),
-					array_flip($this->getPresenter()->getPersistentParams())
-				)
+			array_intersect_key(
+				$this->getPresenter()->getParameters(),
+				array_flip($this->getPresenter()->getPersistentParams())
 			),
 		];
 	}

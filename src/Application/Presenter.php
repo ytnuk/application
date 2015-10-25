@@ -19,6 +19,14 @@ abstract class Presenter
 	 */
 	private $messageControl;
 
+	public function injectApplication(
+		Ytnuk\Templating\Control\Factory $templatingControl,
+		Ytnuk\Message\Control\Factory $messageControl
+	) {
+		$this->templatingControl = $templatingControl;
+		$this->messageControl = $messageControl;
+	}
+
 	protected function createRequest(
 		$component,
 		$destination,
@@ -58,35 +66,6 @@ abstract class Presenter
 		return $this[Ytnuk\Templating\Control::NAME][$this->getView()] ? : parent::formatTemplateFiles();
 	}
 
-	public function injectApplication(
-		Ytnuk\Templating\Control\Factory $templatingControl,
-		Ytnuk\Message\Control\Factory $messageControl
-	) {
-		$this->templatingControl = $templatingControl;
-		$this->messageControl = $messageControl;
-	}
-
-	protected function createComponentTemplating()
-	{
-		return $this->templatingControl->create();
-	}
-
-	protected function createComponentMessage()
-	{
-		return $this->messageControl->create();
-	}
-
-	public function redrawControl(
-		string $snippet = NULL,
-		bool $redraw = TRUE
-	) {
-		parent::redrawControl(
-			$snippet,
-			$redraw
-		);
-		$this[Ytnuk\Message\Control::NAME]->redrawControl();
-	}
-
 	/**
 	 * @inheritDoc
 	 */
@@ -104,6 +83,17 @@ abstract class Presenter
 		} else {
 			$this->redrawControl();
 		}
+	}
+
+	public function redrawControl(
+		string $snippet = NULL,
+		bool $redraw = TRUE
+	) {
+		parent::redrawControl(
+			$snippet,
+			$redraw
+		);
+		$this[Ytnuk\Message\Control::NAME]->redrawControl();
 	}
 
 	public function sendPayload()
@@ -129,5 +119,15 @@ abstract class Presenter
 			$payload->snippets = $snippets;
 		}
 		parent::sendPayload();
+	}
+
+	protected function createComponentTemplating()
+	{
+		return $this->templatingControl->create();
+	}
+
+	protected function createComponentMessage()
+	{
+		return $this->messageControl->create();
 	}
 }
