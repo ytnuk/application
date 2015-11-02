@@ -7,10 +7,12 @@ final class Extension
 	extends Nette\DI\CompilerExtension
 {
 
-	public function loadConfiguration()
+	public function setCompiler(
+		Nette\DI\Compiler $compiler,
+		$name
+	) : self
 	{
-		parent::loadConfiguration();
-		$application = current($this->compiler->getExtensions(Nette\Bridges\ApplicationDI\ApplicationExtension::class));
+		$application = current($compiler->getExtensions(Nette\Bridges\ApplicationDI\ApplicationExtension::class));
 		if ($application instanceof Nette\Bridges\ApplicationDI\ApplicationExtension) {
 			$application->defaults['errorPresenter'] = FALSE;
 			$application->defaults['scanDirs'] = FALSE;
@@ -18,14 +20,19 @@ final class Extension
 				'*' => 'Ytnuk\*\*',
 			];
 		}
-		$session = current($this->compiler->getExtensions(Nette\Bridges\HttpDI\SessionExtension::class));
+		$session = current($compiler->getExtensions(Nette\Bridges\HttpDI\SessionExtension::class));
 		if ($session instanceof Nette\Bridges\HttpDI\SessionExtension) {
 			$session->defaults['debugger'] = TRUE;
 		}
-		$di = current($this->compiler->getExtensions(Nette\DI\Extensions\DIExtension::class));
+		$di = current($compiler->getExtensions(Nette\DI\Extensions\DIExtension::class));
 		if ($di instanceof Nette\DI\Extensions\DIExtension) {
 			$di->defaults['debugger'] = TRUE;
 		}
+
+		return parent::setCompiler(
+			$compiler,
+			$name
+		);
 	}
 
 	public function beforeCompile()
