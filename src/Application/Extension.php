@@ -7,6 +7,20 @@ final class Extension
 	extends Nette\DI\CompilerExtension
 {
 
+	public function beforeCompile()
+	{
+		parent::beforeCompile();
+		$decorator = current($this->compiler->getExtensions(Nette\DI\Extensions\DecoratorExtension::class));
+		if ($decorator instanceof Nette\DI\Extensions\DecoratorExtension) {
+			$decorator->addSetups(
+				Control::class,
+				[
+					'setCacheStorage',
+				]
+			);
+		}
+	}
+
 	public function setCompiler(
 		Nette\DI\Compiler $compiler,
 		$name
@@ -33,19 +47,5 @@ final class Extension
 			$compiler,
 			$name
 		);
-	}
-
-	public function beforeCompile()
-	{
-		parent::beforeCompile();
-		$decorator = current($this->compiler->getExtensions(Nette\DI\Extensions\DecoratorExtension::class));
-		if ($decorator instanceof Nette\DI\Extensions\DecoratorExtension) {
-			$decorator->addSetups(
-				Control::class,
-				[
-					'setCacheStorage',
-				]
-			);
-		}
 	}
 }
