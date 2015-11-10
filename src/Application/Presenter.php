@@ -40,8 +40,8 @@ abstract class Presenter
 				'value'
 			);
 			$destination = $destination->destination;
-			if (isset($args['absolute'])) {
-				$destination = ($args['absolute'] ? '//' : NULL) . $destination;
+			if ($absolute = $args['absolute'] ?? NULL) {
+				$destination = ($absolute ? '//' : NULL) . $destination;
 				unset($args['absolute']);
 			}
 		}
@@ -99,7 +99,7 @@ abstract class Presenter
 	public function sendPayload()
 	{
 		$payload = $this->getPayload();
-		if ($payload && isset($payload->snippets) && $snippets = (array) $payload->snippets) {
+		if ($payload && $snippets = (array) $payload->snippets ?? []) {
 			ksort($snippets);
 			uksort(
 				$snippets,

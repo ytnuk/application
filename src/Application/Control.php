@@ -172,7 +172,7 @@ abstract class Control
 				foreach (
 					$this->related[$this->view] as $subName => $subViews
 				) {
-					$related = isset($this[$subName]) ? $this[$subName] : NULL;
+					$related = $this[$subName] ?? NULL;
 					if ($related instanceof Nette\Application\UI\IRenderable) {
 						$related->redrawControl();
 					}
@@ -185,8 +185,7 @@ abstract class Control
 					new stdClass,
 					[]
 				);
-			} elseif (isset($this->rendered[$this->view = $name])) {
-				$output = $this->rendered[$this->view];
+			} elseif ($output = $this->rendered[$this->view = $name] ?? NULL) {
 				if ( ! $isAjax) {
 					foreach (
 						$this->related[$this->view] as $relatedName => $relatedViews
