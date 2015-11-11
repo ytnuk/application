@@ -54,7 +54,7 @@ abstract class Control
 
 	//TODO: when rendering in ajax, every view of control is rendered because of missing context
 	//TODO: every view as separate control
-	//TODO: every view automaticaly clone $this into new control, changing the view
+	//TODO: every view automatically clone $this into new control, changing the view
 	//TODO: ...
 	public function __call(
 		$name,
