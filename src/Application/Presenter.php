@@ -14,17 +14,10 @@ abstract class Presenter
 	 */
 	private $templatingControl;
 
-	/**
-	 * @var Ytnuk\Message\Control\Factory
-	 */
-	private $messageControl;
-
 	public function injectApplication(
-		Ytnuk\Templating\Control\Factory $templatingControl,
-		Ytnuk\Message\Control\Factory $messageControl
+		Ytnuk\Templating\Control\Factory $templatingControl
 	) {
 		$this->templatingControl = $templatingControl;
-		$this->messageControl = $messageControl;
 	}
 
 	protected function createRequest(
@@ -80,20 +73,7 @@ abstract class Presenter
 				[]
 			);
 			$this->sendPayload();
-		} else {
-			$this->redrawControl();
 		}
-	}
-
-	public function redrawControl(
-		string $snippet = NULL,
-		bool $redraw = TRUE
-	) {
-		parent::redrawControl(
-			$snippet,
-			$redraw
-		);
-		$this[Ytnuk\Message\Control::NAME]->redrawControl();
 	}
 
 	public function sendPayload()
@@ -124,10 +104,5 @@ abstract class Presenter
 	protected function createComponentTemplating()
 	{
 		return $this->templatingControl->create();
-	}
-
-	protected function createComponentMessage()
-	{
-		return $this->messageControl->create();
 	}
 }

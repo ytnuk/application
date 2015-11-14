@@ -185,7 +185,11 @@ abstract class Control
 					new stdClass,
 					[]
 				);
-			} elseif ($output = $this->rendered[$this->view = $name] ?? NULL) {
+			} elseif (array_key_exists(
+				$this->view = $name,
+				$this->rendered
+			)) {
+				$output = $this->rendered[$this->view];
 				if ( ! $isAjax) {
 					foreach (
 						$this->related[$this->view] as $relatedName => $relatedViews
@@ -195,7 +199,7 @@ abstract class Control
 							$relatedViews as $relatedView => $relatedSnippetId
 						) {
 							$relatedSnippet = Nette\Utils\Html::el(
-								'div',
+								is_string($arguments['snippet']) ? $arguments['snippet'] : 'div',
 								['id' => $relatedSnippetId]
 							);
 							if (strpos(
@@ -225,7 +229,7 @@ abstract class Control
 				}
 				if ($arguments['snippet'] && $this->views[$this->view] && $snippetId = $this->getSnippetId()) {
 					$snippet = Nette\Utils\Html::el(
-						'div',
+						is_string($arguments['snippet']) ? $arguments['snippet'] : 'div',
 						['id' => $snippetId]
 					);
 					if ($isAjax && $this->related[$this->view]) {
