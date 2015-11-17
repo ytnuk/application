@@ -168,14 +168,12 @@ abstract class Control
 				$this->rendered[$view] = $output;
 			}
 			$this->view = $defaultView;
-			if ($isAjax && $this->related[$this->view]) {
-				foreach (
-					$this->related[$this->view] as $subName => $subViews
-				) {
-					$related = $this[$subName] ?? NULL;
-					if ($related instanceof Nette\Application\UI\IRenderable) {
-						$related->redrawControl();
-					}
+			foreach (
+				$this->related[$this->view] as $subName => $subViews
+			) {
+				$related = $this[$subName] ?? NULL;
+				if ($related instanceof Nette\Application\UI\IRenderable) {
+					$related->redrawControl();
 				}
 			}
 			$output = NULL;
@@ -381,8 +379,8 @@ abstract class Control
 		$destination = 'this' . ($fragment ? '#' . $fragment : NULL);
 		$parameters = $this->getParameters();
 		unset($parameters['fragment']);
+		$this->redrawControl();
 		if ($this->getPresenter()->isAjax()) {
-			$this->redrawControl();
 			$payload = $this->getPresenter()->getPayload();
 			$payload->disableHistory = TRUE;
 			$payload->redirect = $this->link(
