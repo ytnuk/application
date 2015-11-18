@@ -370,7 +370,11 @@ abstract class Control
 	{
 		$this->cache = new Nette\Caching\Cache(
 			$storage,
-			static::class
+			strtr(
+				static::class,
+				'\\',
+				Nette\Caching\Cache::NAMESPACE_SEPARATOR
+			)
 		);
 	}
 
