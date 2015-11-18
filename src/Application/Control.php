@@ -71,9 +71,10 @@ abstract class Control
 			self::RENDER_METHOD
 		)
 		) {
+			$rendering = $this->isRendering();
 			$arguments = current($arguments) ? : $arguments;
 			$arguments = (array) $arguments + [
-					'snippet' => TRUE,
+					'snippet' => ! $rendering,
 					'echo' => TRUE,
 				];
 			$name = lcfirst(
@@ -87,7 +88,7 @@ abstract class Control
 			$defaultView = $this->view;
 			$defaultSnippetMode = $this->snippetMode;
 			$views = $this->views;
-			if ($this->rendering || ! $isAjax) {
+			if ($rendering || ! $isAjax) {
 				$views = array_intersect_key(
 					$views,
 					[$name => TRUE]
