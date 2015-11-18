@@ -193,34 +193,33 @@ abstract class Control
 						$this->related[$this->view] as $relatedName => $relatedViews
 					) {
 						$related = $this->getComponent($relatedName);
-						foreach (
-							$relatedViews as $relatedView => $relatedSnippetId
-						) {
-							$relatedSnippet = Nette\Utils\Html::el(
-								is_string($arguments['snippet']) ? $arguments['snippet'] : 'div',
-								['id' => $relatedSnippetId]
-							);
-							if (strpos(
-									$output,
-									(string) $relatedSnippet
-								) !== FALSE
+						if ($related instanceof self) {
+							foreach (
+								$relatedViews as $relatedView => $relatedSnippetId
 							) {
-								$output = str_replace(
-									(string) $relatedSnippet,
-									$relatedSnippet->setHtml(
-										call_user_func(
-											[
-												$related,
-												self::RENDER_METHOD . ucfirst($relatedView),
-											],
-											[
-												'echo' => FALSE,
-												'snippet' => FALSE,
-											]
-										)
-									),
-									$output
+								$relatedSnippet = Nette\Utils\Html::el(
+									is_string($arguments['snippet']) ? $arguments['snippet'] : 'div',
+									['id' => $relatedSnippetId]
 								);
+								if (strpos(
+										$output,
+										(string) $relatedSnippet
+									) !== FALSE
+								) {
+									$output = str_replace(
+										(string) $relatedSnippet,
+										$relatedSnippet->setHtml(
+											$related->__call(
+												self::RENDER_METHOD . ucfirst($relatedView),
+												[
+													'echo' => FALSE,
+													'snippet' => FALSE,
+												]
+											)
+										),
+										$output
+									);
+								}
 							}
 						}
 					}
