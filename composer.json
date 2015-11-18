@@ -3,7 +3,8 @@
 	"require": {
 		"nette/application": "dev-master",
 		"nette/utils": "dev-master",
-		"ytnuk/templating": "dev-master"
+		"ytnuk/templating": "dev-master",
+		"vojtech-dobes/nette-ajax-history": "dev-master"
 	},
 	"autoload": {
 		"psr-4": {

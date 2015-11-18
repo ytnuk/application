@@ -3,6 +3,7 @@ namespace Ytnuk\Application;
 
 use Nette;
 use stdClass;
+use VojtechDobes;
 use Ytnuk;
 
 abstract class Control
@@ -51,6 +52,11 @@ abstract class Control
 	 * @var Nette\Caching\Cache
 	 */
 	private $cache;
+
+	/**
+	 * @var VojtechDobes\NetteAjax\OnResponseHandler
+	 */
+	private $onResponseHandler;
 
 	//TODO: when rendering in ajax, every view of control is rendered because of missing context
 	//TODO: every view as separate control
@@ -373,15 +379,23 @@ abstract class Control
 		);
 	}
 
+	public function setOnResponseHandler(VojtechDobes\NetteAjax\OnResponseHandler $onResponseHandler)
+	{
+		$this->onResponseHandler = $onResponseHandler;
+	}
+
 	public function handleRedirect(string $fragment = NULL)
 	{
 		$destination = 'this' . ($fragment ? '#' . $fragment : NULL);
 		$parameters = $this->getParameters();
 		unset($parameters['fragment']);
 		$this->redrawControl();
-		if ($this->getPresenter()->isAjax()) {
-			$payload = $this->getPresenter()->getPayload();
-			$payload->disableHistory = TRUE;
+		$presenter = $this->getPresenter();
+		if ($presenter->isAjax()) {
+			if ($this->onResponseHandler) {
+				$this->onResponseHandler->markForward();
+			}
+			$payload = $presenter->getPayload();
 			$payload->redirect = $this->link(
 				$destination,
 				$parameters

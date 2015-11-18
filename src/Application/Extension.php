@@ -2,6 +2,7 @@
 namespace Ytnuk\Application;
 
 use Nette;
+use VojtechDobes;
 
 final class Extension
 	extends Nette\DI\CompilerExtension
@@ -16,6 +17,12 @@ final class Extension
 				Control::class,
 				[
 					'setCacheStorage',
+				]
+			);
+			$decorator->addSetups(
+				Control::class,
+				[
+					'setOnResponseHandler',
 				]
 			);
 		}
@@ -42,6 +49,10 @@ final class Extension
 		if ($di instanceof Nette\DI\Extensions\DIExtension) {
 			$di->defaults['debugger'] = TRUE;
 		}
+		$compiler->addExtension(
+			'vojtechDobes.history',
+			new VojtechDobes\NetteAjax\HistoryExtension
+		);
 
 		return parent::setCompiler(
 			$compiler,
