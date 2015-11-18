@@ -76,7 +76,6 @@ abstract class Control
 					'snippet' => TRUE,
 					'echo' => TRUE,
 				];
-			$this->isRendering(TRUE);
 			$name = lcfirst(
 				Nette\Utils\Strings::substring(
 					$name,
@@ -88,17 +87,18 @@ abstract class Control
 			$defaultView = $this->view;
 			$defaultSnippetMode = $this->snippetMode;
 			$views = $this->views;
-			if ($this->snippetMode) {
-				$views = array_intersect_key(
-					$views,
-					$this->invalidViews
-				);
-			} elseif ( ! $isAjax) {
+			if ($this->rendering || ! $isAjax) {
 				$views = array_intersect_key(
 					$views,
 					[$name => TRUE]
 				);
+			} elseif ($this->snippetMode) {
+				$views = array_intersect_key(
+					$views,
+					$this->invalidViews
+				);
 			}
+			$this->isRendering(TRUE);
 			foreach (
 				array_diff_key(
 					$views,
