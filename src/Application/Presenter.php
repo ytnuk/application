@@ -79,7 +79,7 @@ abstract class Presenter
 	public function sendPayload()
 	{
 		$payload = $this->getPayload();
-		if ($payload && $snippets = (array) $payload->snippets ?? []) {
+		if ($payload && isset($payload->snippets) && $snippets = (array) $payload->snippets) {
 			ksort($snippets);
 			uksort(
 				$snippets,
