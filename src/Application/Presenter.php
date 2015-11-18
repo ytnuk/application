@@ -3,6 +3,7 @@ namespace Ytnuk\Application;
 
 use Nette;
 use stdClass;
+use VojtechDobes;
 use Ytnuk;
 
 abstract class Presenter
@@ -14,10 +15,22 @@ abstract class Presenter
 	 */
 	private $templatingControl;
 
+	/**
+	 * @var VojtechDobes\NetteAjax\OnResponseHandler
+	 */
+	private $onResponseHandler;
+
+	/**
+	 * @var bool
+	 */
+	private $redirect = FALSE;
+
 	public function injectApplication(
-		Ytnuk\Templating\Control\Factory $templatingControl
+		Ytnuk\Templating\Control\Factory $templatingControl,
+		VojtechDobes\NetteAjax\OnResponseHandler $onResponseHandler
 	) {
 		$this->templatingControl = $templatingControl;
+		$this->onResponseHandler = $onResponseHandler;
 	}
 
 	protected function createRequest(
@@ -76,9 +89,27 @@ abstract class Presenter
 		}
 	}
 
+	public function redirectUrl(
+		$url,
+		$code = NULL
+	) {
+		$this->redirect = TRUE;
+		try {
+			parent::redirectUrl(
+				$url,
+				$code
+			);
+		} finally {
+			$this->redirect = FALSE;
+		}
+	}
+
 	public function sendPayload()
 	{
 		$payload = $this->getPayload();
+		if ( ! $this->redirect && isset($payload->redirect)) {
+			$this->onResponseHandler->markForward();
+		}
 		if ($payload && isset($payload->snippets) && $snippets = (array) $payload->snippets) {
 			ksort($snippets);
 			uksort(

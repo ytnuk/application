@@ -19,12 +19,6 @@ final class Extension
 					'setCacheStorage',
 				]
 			);
-			$decorator->addSetups(
-				Control::class,
-				[
-					'setOnResponseHandler',
-				]
-			);
 		}
 	}
 
