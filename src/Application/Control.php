@@ -404,6 +404,7 @@ abstract class Control
 		return $this->render();
 	}
 
+	//TODO: when views will be separated into own components, this should not be needed (not sure)
 	protected function getViews() : array
 	{
 		return [
