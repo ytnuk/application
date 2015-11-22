@@ -43,10 +43,6 @@ final class Extension
 		if ($di instanceof Nette\DI\Extensions\DIExtension) {
 			$di->defaults['debugger'] = TRUE;
 		}
-		$compiler->addExtension(
-			'vojtechDobes.history',
-			new VojtechDobes\NetteAjax\HistoryExtension
-		);
 
 		return parent::setCompiler(
 			$compiler,
