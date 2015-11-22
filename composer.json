@@ -3,7 +3,7 @@
 	"extra": {
 		"extensions": {
 			"ytnuk_application": "Ytnuk\\Application\\Extension",
-			"vojtech-dobes_history.nette.ajax.js": "VojtechDobes\\NetteAjax\\HistoryExtension"
+			"vojtech.dobes_history.nette.ajax.js": "VojtechDobes\\NetteAjax\\HistoryExtension"
 		}
 	},
 	"require": {
