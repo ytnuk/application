@@ -2,8 +2,8 @@
 	"name": "ytnuk/application",
 	"extra": {
 		"extensions": {
-			"ytnuk_application": "Ytnuk\\Application\\Extension",
-			"vojtech.dobes_history.nette.ajax.js": "VojtechDobes\\NetteAjax\\HistoryExtension"
+			"ytnuk.application": "Ytnuk\\Application\\Extension",
+			"vojtechdobes.history": "VojtechDobes\\NetteAjax\\HistoryExtension"
 		}
 	},
 	"require": {
