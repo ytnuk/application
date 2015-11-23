@@ -11,6 +11,12 @@ abstract class Presenter
 {
 
 	/**
+	 * @var string
+	 * @persistent
+	 */
+	public $environment;
+
+	/**
 	 * @var Ytnuk\Templating\Control\Factory
 	 */
 	private $templatingControl;
