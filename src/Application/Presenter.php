@@ -26,6 +26,12 @@ abstract class Presenter
 	 */
 	private $redirect = FALSE;
 
+	public function __construct()
+	{
+		parent::__construct();
+		$this->setLayout('layout');
+	}
+
 	public function injectApplication(
 		Ytnuk\Templating\Control\Factory $templatingControl,
 		VojtechDobes\NetteAjax\OnResponseHandler $onResponseHandler
@@ -90,7 +96,7 @@ abstract class Presenter
 
 	public function formatLayoutTemplateFiles() : Ytnuk\Templating\Template
 	{
-		$template = $this[Ytnuk\Templating\Control::NAME][$this->getLayout() ? : 'layout'];
+		$template = $this[Ytnuk\Templating\Control::NAME][$this->getLayout()];
 
 		return $template instanceof Ytnuk\Templating\Template ? $template->disableRewind() : parent::formatLayoutTemplateFiles();
 	}
