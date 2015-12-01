@@ -96,14 +96,14 @@ abstract class Presenter
 
 	public function formatLayoutTemplateFiles() : Ytnuk\Templating\Template
 	{
-		$template = $this[Ytnuk\Templating\Control::NAME][$this->getLayout()];
+		$template = $this['templating'][$this->getLayout()];
 
 		return $template instanceof Ytnuk\Templating\Template ? $template->disableRewind() : parent::formatLayoutTemplateFiles();
 	}
 
 	public function formatTemplateFiles() : Ytnuk\Templating\Template
 	{
-		return $this[Ytnuk\Templating\Control::NAME][$this->getView()] ? : parent::formatTemplateFiles();
+		return $this['templating'][$this->getView()] ? : parent::formatTemplateFiles();
 	}
 
 	/**

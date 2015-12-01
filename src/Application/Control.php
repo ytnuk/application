@@ -415,7 +415,7 @@ abstract class Control
 	private function render() : string
 	{
 		$template = $this->getTemplate();
-		$template->setFile($this[Ytnuk\Templating\Control::NAME][$this->view]);
+		$template->setFile($this['templating'][$this->view]);
 		if ($template instanceof Nette\Bridges\ApplicationLatte\Template) {
 			$template->setParameters(
 				$this->cycle(
