@@ -2,7 +2,6 @@
 namespace Ytnuk\Application;
 
 use Nette;
-use ReflectionProperty;
 use stdClass;
 use VojtechDobes;
 use Ytnuk;
@@ -40,31 +39,6 @@ abstract class Presenter
 		$this->onResponseHandler = $onResponseHandler;
 	}
 
-	public function canonicalize()
-	{
-		$actionProperty = new ReflectionProperty(
-			Nette\Application\UI\Presenter::class,
-			'action'
-		);
-		$actionProperty->setAccessible(TRUE);
-		$action = $actionProperty->getValue($this);
-		$link = $this->getParameter('link');
-		if ($link instanceof Ytnuk\Link\Entity) {
-			$actionProperty->setValue(
-				$this,
-				$link
-			);
-		}
-		try {
-			parent::canonicalize();
-		} finally {
-			$actionProperty->setValue(
-				$this,
-				$action
-			);
-		}
-	}
-
 	protected function createRequest(
 		$component,
 		$destination,
@@ -73,12 +47,10 @@ abstract class Presenter
 	) {
 		if ($destination instanceof Ytnuk\Link\Entity) {
 			$component = $this;
-			$args += [
-					'link' => $destination,
-				] + $destination->parameters->get()->fetchPairs(
-					'key',
-					'value'
-				);
+			$args += $destination->parameters->get()->fetchPairs(
+				'key',
+				'value'
+			);
 			$destination = $destination->destination;
 			if ($absolute = $args['absolute'] ?? NULL) {
 				$destination = ($absolute ? '//' : NULL) . $destination;
