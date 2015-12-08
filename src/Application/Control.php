@@ -143,7 +143,7 @@ abstract class Control
 								$dependencies[Nette\Caching\Cache::TAGS],
 								$this->getCacheTags()
 							);
-							$dependencies[Nette\Caching\Cache::TAGS][] = $this->cache->getNamespace();
+							$dependencies[Nette\Caching\Cache::TAGS][] = static::class;
 							$output = $this->render();
 							$dependencies[Nette\Caching\Cache::FILES][] = $this->getTemplate()->getFile();
 							$dp = $dependencies;
