@@ -52,10 +52,13 @@ abstract class Presenter
 				'value'
 			);
 			$destination = $destination->destination;
-			if ($absolute = $args['absolute'] ?? NULL) {
-				$destination = ($absolute ? '//' : NULL) . $destination;
-				unset($args['absolute']);
+			if ($args['absolute'] ?? NULL) {
+				$destination = '//' . $destination;
 			}
+			if ($fragment = $args['fragment'] ?? NULL) {
+				$destination .= '#' . $fragment;
+			}
+			unset($args['absolute'], $args['fragment']);
 		}
 
 		return parent::createRequest(
