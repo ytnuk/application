@@ -2,7 +2,7 @@
 	"name": "ytnuk/application",
 	"extra": {
 		"extensions": {
-			"ytnuk.application": "Ytnuk\\Application\\Extension",
+			"ytnuk.application": "Ytnuk\\Application\\Extension(%debugMode%)",
 			"vojtechdobes.history": "VojtechDobes\\NetteAjax\\HistoryExtension"
 		}
 	},
