@@ -49,7 +49,26 @@ final class Extension
 		$http = current($compiler->getExtensions(Nette\Bridges\HttpDI\HttpExtension::class));
 		if ($http instanceof Nette\Bridges\HttpDI\HttpExtension) {
 			$http->defaults['headers']['X-Powered-By'] = __NAMESPACE__;
-			$http->defaults['headers']['Content-Security-Policy'] = 'default-src \'self\'; form-action \'self\'';
+			$contentSecurityPolicy = [
+				'default-src' => '\'self\'',
+				'form-action' => '\'self\'',
+				'img-src' => '\'self\' data:',
+			];
+			if ($this->debugMode) {
+				$contentSecurityPolicy += [
+					'script-src' => '\'self\' \'unsafe-inline\' \'unsafe-eval\'',
+					'style-src' => '\'self\' \'unsafe-inline\'',
+				];
+			}
+			$http->defaults['headers']['Content-Security-Policy'] = implode(';', array_map(function (
+				string $key,
+				string $value
+			) {
+				return implode(' ', [
+					$key,
+					$value,
+				]);
+			}, array_keys($contentSecurityPolicy), array_values($contentSecurityPolicy)));
 		}
 		$di = current($compiler->getExtensions(Nette\DI\Extensions\DIExtension::class));
 		if ($di instanceof Nette\DI\Extensions\DIExtension) {
