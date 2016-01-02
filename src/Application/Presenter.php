@@ -47,10 +47,7 @@ abstract class Presenter
 	) {
 		if ($destination instanceof Ytnuk\Link\Entity) {
 			$component = $this;
-			$args += $destination->parameters->get()->fetchPairs(
-				'key',
-				'value'
-			);
+			$args += $destination->parameters->get()->fetchPairs('key', 'value');
 			$destination = $destination->destination;
 			if ($args['absolute'] ?? NULL) {
 				$destination = '//' . $destination;
@@ -61,12 +58,7 @@ abstract class Presenter
 			unset($args['absolute'], $args['fragment']);
 		}
 
-		return parent::createRequest(
-			$component,
-			$destination,
-			$args,
-			$mode
-		);
+		return parent::createRequest($component, $destination, $args, $mode);
 	}
 
 	public function formatLayoutTemplateFiles() : Ytnuk\Templating\Template
@@ -89,11 +81,7 @@ abstract class Presenter
 		$signal = $this->getSignal();
 		parent::processSignal();
 		if ($signal && $this->snippetMode = $this->isAjax()) {
-			Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
-				$this,
-				new stdClass,
-				[]
-			);
+			Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets($this, new stdClass, []);
 			$this->sendPayload();
 		}
 	}
@@ -104,10 +92,7 @@ abstract class Presenter
 	) {
 		$this->redirect = TRUE;
 		try {
-			parent::redirectUrl(
-				$url,
-				$code
-			);
+			parent::redirectUrl($url, $code);
 		} finally {
 			$this->redirect = FALSE;
 		}
@@ -121,21 +106,12 @@ abstract class Presenter
 		}
 		if ($payload && isset($payload->snippets) && $snippets = (array) $payload->snippets) {
 			ksort($snippets);
-			uksort(
-				$snippets,
-				function (
-					$left,
-					$right
-				) {
-					return substr_count(
-						$left,
-						'-'
-					) <=> substr_count(
-						$right,
-						'-'
-					);
-				}
-			);
+			uksort($snippets, function (
+				$left,
+				$right
+			) {
+				return substr_count($left, '-') <=> substr_count($right, '-');
+			});
 			$payload->snippets = $snippets;
 		}
 		parent::sendPayload();

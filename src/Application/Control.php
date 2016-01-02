@@ -60,45 +60,27 @@ abstract class Control
 		$name,
 		$arguments = []
 	) {
-		if (Nette\Utils\Strings::startsWith(
-			$name,
-			self::RENDER_METHOD
-		)
-		) {
+		if (Nette\Utils\Strings::startsWith($name, self::RENDER_METHOD)) {
 			$rendering = $this->isRendering();
 			$arguments = current($arguments) ? : $arguments;
 			$arguments = (array) $arguments + [
 					'snippet' => ! $rendering,
 					'echo' => TRUE,
 				];
-			$name = lcfirst(
-				Nette\Utils\Strings::substring(
-					$name,
-					strlen(self::RENDER_METHOD)
-				)
-			) ? : $this->view;
+			$name = lcfirst(Nette\Utils\Strings::substring($name, strlen(self::RENDER_METHOD))) ? : $this->view;
 			$isAjax = $this->getPresenter()->isAjax();
 			$payload = $this->getPresenter()->getPayload();
 			$defaultView = $this->view;
 			$defaultSnippetMode = $this->snippetMode;
 			$views = $this->views;
 			if ($rendering || ! $isAjax) {
-				$views = array_intersect_key(
-					$views,
-					[$name => TRUE]
-				);
+				$views = array_intersect_key($views, [$name => TRUE]);
 			} elseif ($this->snippetMode) {
-				$views = array_intersect_key(
-					$views,
-					$this->invalidViews
-				);
+				$views = array_intersect_key($views, $this->invalidViews);
 			}
 			$this->isRendering(TRUE);
 			foreach (
-				array_diff_key(
-					$views,
-					$this->rendered
-				) as $view => $snippetMode
+				array_diff_key($views, $this->rendered) as $view => $snippetMode
 			) {
 				$this->view = $view;
 				$this->snippetMode = $isAjax && ! $snippetMode;
@@ -110,10 +92,8 @@ abstract class Control
 					$key = $this->getCacheKey();
 					$providers = [];
 					foreach (
-						$snippetMode(
-							...
-							[& $dependencies]
-						) as $dependency
+						$snippetMode(...
+							[& $dependencies]) as $dependency
 					) {
 						if ($dependency instanceof Ytnuk\Cache\Provider) {
 							$providers[] = $dependency;
@@ -122,38 +102,29 @@ abstract class Control
 							$key[] = $dependency;
 						}
 					}
-					list($output, $this->related) = $this->cache->load(
-						$key,
-						function (& $dp) use
-						(
-							&$dependencies,
-							$providers
+					list($output, $this->related) = $this->cache->load($key, function (& $dp) use
+					(
+						&$dependencies,
+						$providers
+					) {
+						foreach (
+							$providers as $provider
 						) {
-							foreach (
-								$providers as $provider
-							) {
-								if ($provider instanceof Ytnuk\Cache\Provider) {
-									$dependencies[Nette\Caching\Cache::TAGS] = array_merge(
-										$dependencies[Nette\Caching\Cache::TAGS],
-										$provider->getCacheTags()
-									);
-								}
+							if ($provider instanceof Ytnuk\Cache\Provider) {
+								$dependencies[Nette\Caching\Cache::TAGS] = array_merge($dependencies[Nette\Caching\Cache::TAGS], $provider->getCacheTags());
 							}
-							$dependencies[Nette\Caching\Cache::TAGS] = array_merge(
-								$dependencies[Nette\Caching\Cache::TAGS],
-								$this->getCacheTags()
-							);
-							$dependencies[Nette\Caching\Cache::TAGS][] = static::class;
-							$output = $this->render();
-							$dependencies[Nette\Caching\Cache::FILES][] = $this->getTemplate()->getFile();
-							$dp = $dependencies;
-
-							return [
-								$output,
-								$this->related,
-							];
 						}
-					);
+						$dependencies[Nette\Caching\Cache::TAGS] = array_merge($dependencies[Nette\Caching\Cache::TAGS], $this->getCacheTags());
+						$dependencies[Nette\Caching\Cache::TAGS][] = static::class;
+						$output = $this->render();
+						$dependencies[Nette\Caching\Cache::FILES][] = $this->getTemplate()->getFile();
+						$dp = $dependencies;
+
+						return [
+							$output,
+							$this->related,
+						];
+					});
 				} else {
 					$output = $this->render();
 				}
@@ -161,10 +132,7 @@ abstract class Control
 					$payload->snippets[$this->getSnippetId()] = $output;
 				}
 				if ($control = $this->lookupRendering()) {
-					$control->setRelated(
-						$this,
-						$this->view
-					);
+					$control->setRelated($this, $this->view);
 				}
 				$this->rendered[$view] = $output;
 			}
@@ -179,15 +147,8 @@ abstract class Control
 			}
 			$output = NULL;
 			if ($this->snippetMode = $defaultSnippetMode) {
-				Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
-					$this,
-					new stdClass,
-					[]
-				);
-			} elseif (array_key_exists(
-				$this->view = $name,
-				$this->rendered
-			)) {
+				Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets($this, new stdClass, []);
+			} elseif (array_key_exists($this->view = $name, $this->rendered)) {
 				$output = $this->rendered[$this->view];
 				if ( ! $isAjax) {
 					foreach (
@@ -198,51 +159,26 @@ abstract class Control
 							foreach (
 								$relatedViews as $relatedView => $relatedSnippetId
 							) {
-								$relatedSnippet = Nette\Utils\Html::el(
-									is_string($arguments['snippet']) ? $arguments['snippet'] : 'div',
-									['id' => $relatedSnippetId]
-								);
-								if (strpos(
-										$output,
-										(string) $relatedSnippet
-									) !== FALSE
-								) {
-									$output = str_replace(
-										(string) $relatedSnippet,
-										$relatedSnippet->setHtml(
-											$related->__call(
-												self::RENDER_METHOD . ucfirst($relatedView),
-												[
-													'echo' => FALSE,
-													'snippet' => FALSE,
-												]
-											)
-										),
-										$output
-									);
+								$relatedSnippet = Nette\Utils\Html::el(is_string($arguments['snippet']) ? $arguments['snippet'] : 'div', ['id' => $relatedSnippetId]);
+								if (strpos($output, (string) $relatedSnippet) !== FALSE) {
+									$output = str_replace((string) $relatedSnippet, $relatedSnippet->setHtml($related->__call(self::RENDER_METHOD . ucfirst($relatedView), [
+										'echo' => FALSE,
+										'snippet' => FALSE,
+									])), $output);
 								}
 							}
 						}
 					}
 				}
 				if ($arguments['snippet'] && $this->views[$this->view] && $snippetId = $this->getSnippetId()) {
-					$snippet = Nette\Utils\Html::el(
-						is_string($arguments['snippet']) ? $arguments['snippet'] : 'div',
-						['id' => $snippetId]
-					);
+					$snippet = Nette\Utils\Html::el(is_string($arguments['snippet']) ? $arguments['snippet'] : 'div', ['id' => $snippetId]);
 					if ($isAjax && $this->related[$this->view]) {
 						$snippetMode = $this->snippetMode;
-						Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets(
-							$this,
-							new stdClass,
-							[]
-						);
+						Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets($this, new stdClass, []);
 						$this->snippetMode = $snippetMode;
 					}
 					if (($isAjax && ! isset($payload->snippets[$snippetId])) || ( ! $isAjax && ! $this->lookupRendering())) {
-						$snippet->setHtml(
-							$output
-						);
+						$snippet->setHtml($output);
 					}
 					$output = $snippet->render();
 				}
@@ -256,20 +192,14 @@ abstract class Control
 			return $output;
 		}
 
-		return parent::__call(
-			$name,
-			$arguments
-		);
+		return parent::__call($name, $arguments);
 	}
 
 	protected function attached($presenter)
 	{
 		parent::attached($presenter);
 		$this->views = $this->getViews();
-		$this->related = array_fill_keys(
-			array_keys($this->views),
-			[]
-		);
+		$this->related = array_fill_keys(array_keys($this->views), []);
 	}
 
 	protected function createComponent($name) : Nette\ComponentModel\IComponent
@@ -281,17 +211,10 @@ abstract class Control
 	{
 		$uniqueId = $this->getUniqueId();
 
-		return str_replace(
+		return str_replace($uniqueId, implode('-', [
 			$uniqueId,
-			implode(
-				'-',
-				[
-					$uniqueId,
-					isset($this->views[$name]) ? $name : $this->view,
-				]
-			),
-			parent::getSnippetId(isset($this->views[$name]) ? NULL : $name)
-		);
+			isset($this->views[$name]) ? $name : $this->view,
+		]), parent::getSnippetId(isset($this->views[$name]) ? NULL : $name));
 	}
 
 	public function redrawControl(
@@ -309,10 +232,7 @@ abstract class Control
 		} else {
 			unset($this->invalidViews[$snippet]);
 		}
-		parent::redrawControl(
-			$snippet,
-			$redraw
-		);
+		parent::redrawControl($snippet, $redraw);
 	}
 
 	public function isRendering(bool $rendering = NULL) : bool
@@ -325,10 +245,7 @@ abstract class Control
 		return [
 			$this->getUniqueId(),
 			$this->view,
-			array_intersect_key(
-				$this->getPresenter()->getParameters(),
-				array_flip($this->getPresenter()->getPersistentParams())
-			),
+			array_intersect_key($this->getPresenter()->getParameters(), array_flip($this->getPresenter()->getPersistentParams())),
 		];
 	}
 
@@ -347,10 +264,7 @@ abstract class Control
 			if ($control !== $this && $control->isRendering()) {
 				break;
 			}
-			$control = $control->lookup(
-				self::class,
-				FALSE
-			);
+			$control = $control->lookup(self::class, FALSE);
 		} while ($control instanceof self);
 
 		return $control;
@@ -360,22 +274,12 @@ abstract class Control
 		self $control,
 		string $view
 	) {
-		$this->related[$this->view][substr(
-			$control->getUniqueId(),
-			strlen($this->getUniqueId()) + 1
-		)][$view] = $control->getSnippetId();
+		$this->related[$this->view][substr($control->getUniqueId(), strlen($this->getUniqueId()) + 1)][$view] = $control->getSnippetId();
 	}
 
 	public function setCacheStorage(Nette\Caching\IStorage $storage)
 	{
-		$this->cache = new Nette\Caching\Cache(
-			$storage,
-			strtr(
-				static::class,
-				'\\',
-				Nette\Caching\Cache::NAMESPACE_SEPARATOR
-			)
-		);
+		$this->cache = new Nette\Caching\Cache($storage, strtr(static::class, '\\', Nette\Caching\Cache::NAMESPACE_SEPARATOR));
 	}
 
 	public function handleRedirect(string $fragment = NULL)
@@ -387,15 +291,9 @@ abstract class Control
 		$presenter = $this->getPresenter();
 		if ($presenter->isAjax()) {
 			$payload = $presenter->getPayload();
-			$payload->redirect = $this->link(
-				$destination,
-				$parameters
-			);
+			$payload->redirect = $this->link($destination, $parameters);
 		} else {
-			$this->redirect(
-				$destination,
-				$parameters
-			);
+			$this->redirect($destination, $parameters);
 		}
 	}
 
@@ -417,17 +315,9 @@ abstract class Control
 		$template = $this->getTemplate();
 		$template->setFile($this['templating'][$this->view]);
 		if ($template instanceof Nette\Bridges\ApplicationLatte\Template) {
-			$template->setParameters(
-				$this->cycle(
-					'startup',
-					TRUE
-				) + $this->cycle(self::RENDER_METHOD . ucfirst($this->view))
-			);
+			$template->setParameters($this->cycle('startup', TRUE) + $this->cycle(self::RENDER_METHOD . ucfirst($this->view)));
 
-			return $template->getLatte()->renderToString(
-				$template->getFile(),
-				$template->getParameters()
-			);
+			return $template->getLatte()->renderToString($template->getFile(), $template->getParameters());
 		}
 
 		return (string) $template;
@@ -442,16 +332,11 @@ abstract class Control
 			return $this->cycle[$method];
 		}
 		$result = [];
-		if (method_exists(
-			$this,
-			$method
-		)) {
-			$result = (array) call_user_func(
-				[
-					$this,
-					$method,
-				]
-			);
+		if (method_exists($this, $method)) {
+			$result = (array) call_user_func([
+				$this,
+				$method,
+			]);
 		}
 		if ($once) {
 			$this->cycle[$method] = $result;

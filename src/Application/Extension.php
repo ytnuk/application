@@ -23,12 +23,9 @@ final class Extension
 		parent::beforeCompile();
 		$decorator = current($this->compiler->getExtensions(Nette\DI\Extensions\DecoratorExtension::class));
 		if ($decorator instanceof Nette\DI\Extensions\DecoratorExtension) {
-			$decorator->addSetups(
-				Control::class,
-				[
-					'setCacheStorage',
-				]
-			);
+			$decorator->addSetups(Control::class, [
+				'setCacheStorage',
+			]);
 		}
 	}
 
@@ -61,9 +58,6 @@ final class Extension
 			$di->defaults['debugger'] = $this->debugMode;
 		}
 
-		return parent::setCompiler(
-			$compiler,
-			$name
-		);
+		return parent::setCompiler($compiler, $name);
 	}
 }
