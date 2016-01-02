@@ -49,9 +49,7 @@ final class Extension
 		$http = current($compiler->getExtensions(Nette\Bridges\HttpDI\HttpExtension::class));
 		if ($http instanceof Nette\Bridges\HttpDI\HttpExtension) {
 			$http->defaults['headers']['X-Powered-By'] = __NAMESPACE__;
-			if ( ! $this->debugMode) {
-				$http->defaults['headers']['Content-Security-Policy'] = 'default-src \'self\'; form-action \'self\'';
-			}
+			$http->defaults['headers']['Content-Security-Policy'] = 'default-src \'self\'; form-action \'self\'';
 		}
 		$di = current($compiler->getExtensions(Nette\DI\Extensions\DIExtension::class));
 		if ($di instanceof Nette\DI\Extensions\DIExtension) {
