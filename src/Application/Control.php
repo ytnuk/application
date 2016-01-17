@@ -92,8 +92,7 @@ abstract class Control
 					$key = $this->getCacheKey();
 					$providers = [];
 					foreach (
-						$snippetMode(...
-							[& $dependencies]) as $dependency
+						$snippetMode(...[& $dependencies]) as $dependency
 					) {
 						if ($dependency instanceof Ytnuk\Cache\Provider) {
 							$providers[] = $dependency;
