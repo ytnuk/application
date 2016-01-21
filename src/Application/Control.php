@@ -146,7 +146,7 @@ abstract class Control
 			}
 			$output = NULL;
 			if ($this->snippetMode = $defaultSnippetMode) {
-				Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets($this, new stdClass, []);
+				Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets($this);
 			} elseif (array_key_exists($this->view = $name, $this->rendered)) {
 				$output = $this->rendered[$this->view];
 				if ( ! $isAjax) {
@@ -173,7 +173,7 @@ abstract class Control
 					$snippet = Nette\Utils\Html::el(is_string($arguments['snippet']) ? $arguments['snippet'] : 'div', ['id' => $snippetId]);
 					if ($isAjax && $this->related[$this->view]) {
 						$snippetMode = $this->snippetMode;
-						Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets($this, new stdClass, []);
+						Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets($this);
 						$this->snippetMode = $snippetMode;
 					}
 					if (($isAjax && ! isset($payload->snippets[$snippetId])) || ( ! $isAjax && ! $this->lookupRendering())) {

@@ -81,7 +81,7 @@ abstract class Presenter
 		$signal = $this->getSignal();
 		parent::processSignal();
 		if ($signal && $this->snippetMode = $this->isAjax()) {
-			Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets($this, new stdClass, []);
+			Nette\Bridges\ApplicationLatte\UIRuntime::renderSnippets($this);
 			$this->sendPayload();
 		}
 	}
