@@ -2,7 +2,6 @@
 namespace Ytnuk\Application;
 
 use Nette;
-use stdClass;
 use VojtechDobes;
 use Ytnuk;
 
